@@ -4,6 +4,8 @@
   "description": "Self sovereign identity built on IPFS and orbit-db",
   "main": "index.js",
   "scripts": {
+    "demo": "npx webpack-dev-server --open --config-name demo",
+    "build": "npx webpack --config-name source",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,5 +22,15 @@
   "bugs": {
     "url": "https://github.com/monospaced-out/astronaut/issues"
   },
-  "homepage": "https://github.com/monospaced-out/astronaut#readme"
+  "homepage": "https://github.com/monospaced-out/astronaut#readme",
+  "dependencies": {
+    "ipfs": "^0.33.1",
+    "orbit-db": "^0.19.9"
+  },
+  "devDependencies": {
+    "file-loader": "^2.0.0",
+    "webpack": "^4.25.1",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.10"
+  }
 }

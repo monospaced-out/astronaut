@@ -1,0 +1,22 @@
+{
+  "name": "kistore-elliptic",
+  "version": "0.0.0",
+  "description": "Simple orbit-db keystore adapter for ki",
+  "main": "src/kistore-elliptic",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/projectaspen/ki.git"
+  },
+  "author": "Tyler Yasaka",
+  "license": "CC0-1.0",
+  "bugs": {
+    "url": "https://github.com/projectaspen/ki/issues"
+  },
+  "homepage": "https://github.com/projectaspen/ki#readme",
+  "dependencies": {
+    "elliptic": "^6.4.1"
+  }
+}

@@ -1,5 +1,6 @@
 const IPFS = require('ipfs')
 const OrbitDB = require('orbit-db')
+const OrbitKistore = require('../../orbit-kistore/src/orbit-kistore')
 
 const DB_NAME = 'ki'
 
@@ -40,9 +41,10 @@ class Identity {
 }
 
 class Ki {
-  constructor () {
+  constructor ({ keyAdapters, primaryAdapter } = {}) {
+    const keystore = new OrbitKistore(keyAdapters, primaryAdapter)
     this.ipfs = new IPFS(ipfsOptions)
-    this.orbitdb = new OrbitDB(this.ipfs)
+    this.orbitdb = new OrbitDB(this.ipfs, null, { keystore })
   }
 
   async createIdentity () {

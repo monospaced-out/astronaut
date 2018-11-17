@@ -1,36 +1,36 @@
 class OrbitKistore {
-  constructor(keyAdapters, primaryAdapter) {
+  constructor (keyAdapters, primaryAdapter) {
     this.keyAdapters = keyAdapters
     this._primaryAdapter = primaryAdapter
   }
 
-  get primaryAdapter() {
+  get primaryAdapter () {
     return this.keyAdapters[this._primaryAdapter]
   }
 
-  createKey() {
+  createKey () {
     this.key = this.primaryAdapter.createKey()
     return this.key
   }
 
-  getKey() {
+  getKey () {
     return this.key
   }
 
-  importPublicKey(key) {
+  importPublicKey (key) {
     return this.primaryAdapter.importPublicKey(key)
   }
 
-  importPrivateKey(key) {
+  importPrivateKey (key) {
     return this.primaryAdapter.importPrivateKey(key)
   }
 
-  async sign(key, data) {
+  async sign (key, data) {
     const rawSig = await this.primaryAdapter.sign(key, data)
     return `${this.primaryAdapter}:${rawSig}`
   }
 
-  verify(signature, key, data) {
+  verify (signature, key, data) {
     const exploded = signature.split(':')
     const sigScheme = exploded[0]
     const rawSig = exploded[1]

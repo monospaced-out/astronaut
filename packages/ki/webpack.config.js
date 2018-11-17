@@ -8,7 +8,7 @@ module.exports = [{
     filename: 'demo.js',
     path: path.resolve(__dirname, 'dist')
   }
-},{
+}, {
   name: 'source',
   mode: 'production',
   entry: './src/index.js',

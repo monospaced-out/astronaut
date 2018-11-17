@@ -10,7 +10,7 @@ const ipfsOptions = {
   }
 }
 
-function didToAddress(id) {
+function didToAddress (id) {
   const exploded = id.split(':')
   if (exploded.length !== 3) {
     throw new Error('invalid id')
@@ -18,7 +18,7 @@ function didToAddress(id) {
   return exploded[2]
 }
 
-function addressToDid(address) {
+function addressToDid (address) {
   return `did:ki:${address}`
 }
 
@@ -53,7 +53,7 @@ class Ki {
   }
 
   async getIdentity (id) {
-    const address = this.didToAddress(id)
+    const address = didToAddress(id)
     const db = await this.orbitdb.keyvalue(`/orbitdb/${address}/${DB_NAME}`)
     return new Identity(db)
   }

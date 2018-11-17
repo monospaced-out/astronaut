@@ -4,6 +4,8 @@ require('dotenv').config()
 const IPFS = require('ipfs')
 const OrbitDB = require('orbit-db')
 const Pubsub = require('orbit-db-pubsub')
+const OrbitKistore = require('../../orbit-kistore/src/orbit-kistore')
+const KistoreElliptic = require('../../kistore-elliptic/src/kistore-elliptic')
 
 const ipfsOptions = {
   EXPERIMENTAL: {
@@ -77,7 +79,16 @@ async function run () {
 
   const ipfsId = await ipfs.id()
   console.log(ipfsId)
-  orbitdb = new OrbitDB(ipfs, ORBITDB_PATH)
+
+  // Set up keystore
+  const kistoreElliptic = new KistoreElliptic()
+  const keyAdapters = {
+    'kistore-elliptic': kistoreElliptic
+  }
+  const primaryAdapter = 'kistore-elliptic'
+  const keystore = new OrbitKistore(keyAdapters, primaryAdapter)
+
+  orbitdb = new OrbitDB(ipfs, ORBITDB_PATH, { keystore })
   pubsub = new Pubsub(ipfs, ipfsId.id)
 
   pubsub.subscribe(PINNING_ROOM, onMessage, onNewPeer)

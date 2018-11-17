@@ -1,7 +1,7 @@
 const IPFS = require('ipfs')
 const OrbitDB = require('orbit-db')
 
-const DB_NAME = 'astronaut'
+const DB_NAME = 'ki'
 
 const ipfsOptions = {
   EXPERIMENTAL: {
@@ -18,7 +18,7 @@ function didToAddress(id) {
 }
 
 function addressToDid(address) {
-  return `did:astro:${address}`
+  return `did:ki:${address}`
 }
 
 class Identity {
@@ -39,7 +39,7 @@ class Identity {
   }
 }
 
-class Astronaut {
+class Ki {
   constructor () {
     this.ipfs = new IPFS(ipfsOptions)
     this.orbitdb = new OrbitDB(this.ipfs)
@@ -57,4 +57,4 @@ class Astronaut {
   }
 }
 
-module.exports = Astronaut
+module.exports = Ki

@@ -1,5 +1,5 @@
 {
-  "name": "astronaut-id",
+  "name": "@projectaspen/ki",
   "version": "0.0.0",
   "description": "Self sovereign identity built on IPFS and orbit-db",
   "main": "index.js",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/monospaced-out/astronaut.git"
+    "url": "git+https://github.com/projectaspen/ki.git"
   },
   "keywords": [
     "ipfs",
@@ -20,9 +20,9 @@
   "author": "Tyler Yasaka",
   "license": "CC0-1.0",
   "bugs": {
-    "url": "https://github.com/monospaced-out/astronaut/issues"
+    "url": "https://github.com/projectaspen/ki/issues"
   },
-  "homepage": "https://github.com/monospaced-out/astronaut#readme",
+  "homepage": "https://github.com/projectaspen/ki#readme",
   "dependencies": {
     "ipfs": "^0.33.1",
     "orbit-db": "^0.19.9"

@@ -5,6 +5,7 @@
     "format": "npx standard --fix"
   },
   "devDependencies": {
+    "dotenv": "^6.1.0",
     "lerna": "^3.4.3",
     "standard": "^12.0.1"
   }

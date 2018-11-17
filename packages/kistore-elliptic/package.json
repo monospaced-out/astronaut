@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/projectaspen/ki.git"
+    "url": "git+https://github.com/projectaspen/aspen.git"
   },
   "author": "Tyler Yasaka",
   "license": "CC0-1.0",
   "bugs": {
-    "url": "https://github.com/projectaspen/ki/issues"
+    "url": "https://github.com/projectaspen/aspen/issues"
   },
-  "homepage": "https://github.com/projectaspen/ki#readme",
+  "homepage": "https://github.com/projectaspen/aspen#readme",
   "dependencies": {
     "elliptic": "^6.4.1"
   }

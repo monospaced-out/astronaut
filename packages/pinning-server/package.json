@@ -18,7 +18,7 @@
     "url": "https://github.com/projectaspen/aspen/issues"
   },
   "homepage": "https://github.com/projectaspen/aspen#readme",
-  "dependencies": {
+  "devDependencies": {
     "ipfs": "^0.33.1",
     "orbit-db": "^0.19.9",
     "orbit-db-pubsub": "^0.5.5"

@@ -1,4 +1,5 @@
 const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = [{
   name: 'demo',
@@ -7,7 +8,10 @@ module.exports = [{
   output: {
     filename: 'demo.js',
     path: path.resolve(__dirname, 'dist')
-  }
+  },
+  plugins: [
+    new HtmlWebpackPlugin()
+  ]
 }, {
   name: 'source',
   mode: 'production',

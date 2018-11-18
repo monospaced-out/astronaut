@@ -12,7 +12,7 @@ const ipfsOptions = {
   }
 }
 
-let pubsub, orbitdb
+let pubsub, orbitdb, pinningRoom
 let openDBs = {}
 
 async function openDB (address) {
@@ -25,12 +25,12 @@ async function openDB (address) {
     openDBs[address].load()
     openDBs[address].events.on(
       'replicate.progress',
-      (odbAddress, entryHash, entry, num, max) => {
+      (address, entryHash, entry, num, max) => {
         console.log('Replicating entry:', entryHash)
-        console.log('On db:', odbAddress)
+        console.log('On db:', address)
         if (num === max) {
           openDBs[address].events.on('replicated', () => {
-            console.log('Fully replicated db:', odbAddress)
+            console.log('Fully replicated db:', address)
             publish('REPLICATED', address)
           })
         }
@@ -46,19 +46,19 @@ function sendResponse (address) {
   publish('HAS_ENTRIES', address, numEntries)
 }
 
-function publish (type, odbAddress, data) {
-  let dataObj = { type, odbAddress }
+function publish (type, address, data) {
+  let dataObj = { type, address }
   if (type === 'HAS_ENTRIES') {
     dataObj.numEntries = data
   } else if (type === 'REPLICATED') {
   }
-  pubsub.publish(PINNING_ROOM, dataObj)
+  pubsub.publish(pinningRoom, dataObj)
 }
 
 async function onMessage (topic, data) {
   console.log(topic, data)
   if (!data.type || data.type === 'PIN_DB') {
-    openDB(data.odbAddress)
+    openDB(data.address)
   }
 }
 
@@ -69,6 +69,7 @@ async function onNewPeer (topic, peer) {
 async function run ({ orbitdbPath, room }) {
   // Create IPFS instance
   const ipfs = new IPFS(ipfsOptions)
+  pinningRoom = room
 
   ipfs.on('error', (e) => console.error(e))
 

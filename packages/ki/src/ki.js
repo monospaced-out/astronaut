@@ -37,16 +37,18 @@ class Identity {
 class Ki {
   constructor ({ keyAdapters, nodes } = {}) {
     const keystore = new OrbitKistore(keyAdapters)
-    const { orbitdb } = orbitConnect({
+    const { orbitdb, publish } = orbitConnect({
       nodes,
       room: PINNING_ROOM,
       orbitdbKeystore: keystore
     })
     this.orbitdb = orbitdb
+    this.publish = publish
   }
 
   async createIdentity () {
     const db = await this.orbitdb.keyvalue(DB_NAME)
+    this.publish(db.address.root)
     return new Identity(db)
   }
 

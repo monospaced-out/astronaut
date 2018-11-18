@@ -1,14 +1,8 @@
-const IPFS = require('ipfs')
-const OrbitDB = require('orbit-db')
+const orbitConnect = require('../../orbit-connect/src/orbit-connect')
 const OrbitKistore = require('../../orbit-kistore/src/orbit-kistore')
 
 const DB_NAME = 'ki'
-
-const ipfsOptions = {
-  EXPERIMENTAL: {
-    pubsub: true
-  }
-}
+const PINNING_ROOM = 'ki'
 
 function didToAddress (id) {
   const exploded = id.split(':')
@@ -41,10 +35,14 @@ class Identity {
 }
 
 class Ki {
-  constructor ({ keyAdapters, primaryAdapter } = {}) {
-    const keystore = new OrbitKistore(keyAdapters, primaryAdapter)
-    this.ipfs = new IPFS(ipfsOptions)
-    this.orbitdb = new OrbitDB(this.ipfs, null, { keystore })
+  constructor ({ keyAdapters, nodes } = {}) {
+    const keystore = new OrbitKistore(keyAdapters)
+    const { orbitdb } = orbitConnect({
+      nodes,
+      room: PINNING_ROOM,
+      orbitdbKeystore: keystore
+    })
+    this.orbitdb = orbitdb
   }
 
   async createIdentity () {

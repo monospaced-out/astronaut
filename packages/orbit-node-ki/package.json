@@ -1,0 +1,21 @@
+{
+  "name": "@projectaspen/orbit-node-ki",
+  "version": "0.0.0",
+  "description": "Implementation of orbit-node for ki",
+  "main": "src/orbit-node-ki.js",
+  "private": true,
+  "scripts": {
+    "start": "node src/orbit-node-ki.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/projectaspen/aspen.git"
+  },
+  "author": "Tyler Yasaka",
+  "license": "CC0-1.0",
+  "bugs": {
+    "url": "https://github.com/projectaspen/aspen/issues"
+  },
+  "homepage": "https://github.com/projectaspen/aspen#readme"
+}

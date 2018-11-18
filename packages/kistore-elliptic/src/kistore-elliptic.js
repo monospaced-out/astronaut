@@ -4,6 +4,10 @@ const ec = new EC('secp256k1')
 // copied from https://raw.githubusercontent.com/orbitdb/orbit-db/master/test/utils/custom-test-keystore.js
 
 class KistoreElliptic {
+  constructor() {
+    this.name = 'elliptic'
+  }
+
   createKey () {
     const key = ec.genKeyPair()
     this.key = ec.keyPair({

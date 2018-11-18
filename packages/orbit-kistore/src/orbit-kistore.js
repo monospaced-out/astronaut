@@ -1,7 +1,11 @@
 class OrbitKistore {
-  constructor (keyAdapters, primaryAdapter) {
-    this.keyAdapters = keyAdapters
-    this._primaryAdapter = primaryAdapter
+  constructor (keyAdapters) {
+    const hash = {}
+    keyAdapters.forEach(a => {
+      hash[a.name] = a
+    })
+    this.keyAdapters = hash
+    this._primaryAdapter = keyAdapters[0].name
   }
 
   get primaryAdapter () {
@@ -32,9 +36,9 @@ class OrbitKistore {
 
   verify (signature, key, data) {
     const exploded = signature.split(':')
-    const sigScheme = exploded[0]
+    const adapterName = exploded[0]
     const rawSig = exploded[1]
-    return this.keyAdapters[sigScheme].verify(rawSig, key, data)
+    return this.keyAdapters[adapterName].verify(rawSig, key, data)
   }
 }
 

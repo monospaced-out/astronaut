@@ -1,11 +1,9 @@
 {
-  "name": "@projectaspen/pinning-server",
+  "name": "@projectaspen/orbit-node",
   "version": "0.0.0",
   "description": "An orbit-db node for providing availability and redundancy",
-  "main": "src/pinning-server.js",
-  "private": true,
+  "main": "src/orbit-node.js",
   "scripts": {
-    "start": "node src/pinning-server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,7 +16,7 @@
     "url": "https://github.com/projectaspen/aspen/issues"
   },
   "homepage": "https://github.com/projectaspen/aspen#readme",
-  "devDependencies": {
+  "dependencies": {
     "ipfs": "^0.33.1",
     "orbit-db": "^0.19.9",
     "orbit-db-pubsub": "^0.5.5"

@@ -1,20 +1,30 @@
+const IPFS = require('ipfs')
+const OrbitDB = require('orbit-db')
 const Pubsub = require('orbit-db-pubsub')
 
-function onMessage(topic, data) {
+const ipfsOptions = {
+  EXPERIMENTAL: {
+    pubsub: true
+  }
+}
+
+function onMessage (topic, data) {
   console.log('message', topic, data)
 }
 
-function onNewPeer(topic, peer) {
+function onNewPeer (topic, peer) {
   console.log('peer', topic, peer)
 }
 
 class OrbitConnect {
-  constructor(ipfs, nodes, room) {
+  constructor ({ nodes, room, orbitdbOptions } = {}) {
+    const ipfs = new IPFS(ipfsOptions)
+    this.orbitdb = new OrbitDB(ipfs, null, orbitdbOptions)
     this.ipfs = ipfs
     this.connection = this._connectToNodes(nodes, room)
   }
 
-  async _connectToNodes(nodes, room) {
+  async _connectToNodes (nodes, room) {
     await new Promise(resolve => this.ipfs.on('ready', resolve))
     await Promise.all(nodes.map(n => {
       return new Promise(resolve => this.ipfs.swarm.connect(n, (err) => {
@@ -30,8 +40,9 @@ class OrbitConnect {
     this.pubsub.subscribe(room, onMessage, onNewPeer)
   }
 
-  async broadcastDb(address) {
+  async broadcastDb (db) {
     await this.connection
+    const address = db.address.root
     this.pubsub.publish(this.room, { type: 'PIN_DB', address })
   }
 }

@@ -1,16 +1,4 @@
-const IPFS = require('ipfs')
-const OrbitDB = require('orbit-db')
-const OrbitConnect = require('../../orbit-connect/src/orbit-connect')
-const OrbitKistore = require('../../orbit-kistore/src/orbit-kistore')
-
 const DB_NAME = 'ki'
-const PINNING_ROOM = 'ki'
-
-const ipfsOptions = {
-  EXPERIMENTAL: {
-    pubsub: true
-  }
-}
 
 function didToAddress (id) {
   const exploded = id.split(':')
@@ -33,6 +21,10 @@ class Identity {
     return addressToDid(this.db.address.root)
   }
 
+  get publicKey () {
+    return this.db.access.write[0]
+  }
+
   set (key, value) {
     return this.db.set(key, value)
   }
@@ -43,26 +35,22 @@ class Identity {
 }
 
 class Ki {
-  constructor ({ keyAdapters, nodes } = {}) {
-    const keystore = new OrbitKistore(keyAdapters)
-    const ipfs = new IPFS(ipfsOptions)
-    this.orbitdb = new OrbitDB(ipfs, null, { keystore })
-    this.orbitConnect = new OrbitConnect(
-      ipfs,
-      nodes,
-      PINNING_ROOM
-    )
+  constructor ({ orbitdb, onCreateDb, keystore } = {}) {
+    this.onCreateDb = onCreateDb
+    this.orbitdb = orbitdb
+    this.keystore = keystore
   }
 
   async createIdentity () {
     const db = await this.orbitdb.keyvalue(DB_NAME)
-    this.orbitConnect.broadcastDb(db.address.root)
+    this.onCreateDb(db)
     return new Identity(db)
   }
 
-  async getIdentity (id) {
-    const address = didToAddress(id)
+  async getIdentity (did) {
+    const address = didToAddress(did)
     const db = await this.orbitdb.keyvalue(`/orbitdb/${address}/${DB_NAME}`)
+    await db.load()
     return new Identity(db)
   }
 }

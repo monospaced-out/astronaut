@@ -42,7 +42,7 @@ class OrbitConnect {
 
   async broadcastDb (db) {
     await this.connection
-    const address = db.address.root
+    const address = db.id
     this.pubsub.publish(this.room, { type: 'PIN_DB', address })
   }
 }

@@ -35,22 +35,19 @@ class Identity {
 }
 
 class Ki {
-  constructor ({ orbitdb, onCreateDb, keystore } = {}) {
-    this.onCreateDb = onCreateDb
-    this.orbitdb = orbitdb
+  constructor ({ orbitConnect, keystore } = {}) {
+    this.orbitConnect = orbitConnect
     this.keystore = keystore
   }
 
   async createIdentity () {
-    const db = await this.orbitdb.keyvalue(DB_NAME)
-    this.onCreateDb(db)
+    const db = await this.orbitConnect.keyvalue(DB_NAME)
     return new Identity(db)
   }
 
   async getIdentity (did) {
     const address = didToAddress(did)
-    const db = await this.orbitdb.keyvalue(`/orbitdb/${address}/${DB_NAME}`)
-    await db.load()
+    const db = await this.orbitConnect.open(`/orbitdb/${address}/${DB_NAME}`)
     return new Identity(db)
   }
 }

@@ -9,10 +9,10 @@ function getToday () {
 }
 
 class KiClaims {
-  constructor ({ ki, did, keystore, orbitdb, onCreateDb }) {
+  constructor ({ ki, did, keystore, orbitConnect, onCreateDb }) {
     this.keystore = keystore
     this.ki = ki
-    this.orbitdb = orbitdb
+    this.orbitConnect = orbitConnect
     this.did = did
     this.onCreateDb = onCreateDb
   }
@@ -67,12 +67,10 @@ class KiClaims {
   async _getOrCreateClaimsDb (identity) {
     const existing = await identity.get(CLAIMS_DB_KEY)
     const nameOrAddress = existing || CLAIMS_DB_NAME
-    const db = await this.orbitdb.feed(nameOrAddress)
+    const db = await this.orbitConnect.feed(nameOrAddress)
     if (!existing) {
       await identity.set(CLAIMS_DB_KEY, db.id)
-      this.onCreateDb(db)
     }
-    await db.load()
     return db
   }
 
@@ -81,9 +79,7 @@ class KiClaims {
     if (!existing) {
       throw new Error(`The identity ${identity.did} does not have a claims database`)
     }
-    const db = await this.orbitdb.feed(existing)
-    await db.load()
-    return db
+    return this.orbitConnect.feed(existing)
   }
 
   async _isValidClaim (claim, subjectId) {

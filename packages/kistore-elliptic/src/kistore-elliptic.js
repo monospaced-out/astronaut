@@ -9,14 +9,15 @@ class KistoreElliptic {
   }
 
   createKey () {
-    const key = ec.genKeyPair()
-    this.key = ec.keyPair({
-      pub: key.getPublic('hex'),
-      priv: key.getPrivate('hex'),
-      privEnc: 'hex',
-      pubEnc: 'hex'
-    })
-
+    if (!this.key) {
+      const key = ec.genKeyPair()
+      this.key = ec.keyPair({
+        pub: key.getPublic('hex'),
+        priv: key.getPrivate('hex'),
+        privEnc: 'hex',
+        pubEnc: 'hex'
+      })
+    }
     return this.key
   }
 

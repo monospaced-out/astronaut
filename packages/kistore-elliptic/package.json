@@ -1,5 +1,5 @@
 {
-  "name": "kistore-elliptic",
+  "name": "@projectaspen/kistore-elliptic",
   "version": "0.0.0",
   "description": "Simple orbit-db keystore adapter for ki",
   "main": "src/kistore-elliptic",

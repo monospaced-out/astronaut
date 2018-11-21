@@ -102,7 +102,6 @@ class OrbitConnect {
   }
 
   async _syncDb (db) {
-    console.log('peers', this.peers)
     this.syncedPeers[db.id] = this.syncedPeers[db.id] || []
     const syncedPeers = this.syncedPeers[db.id]
 
@@ -125,14 +124,7 @@ class OrbitConnect {
 
       // listen for `synced` events
       db.events.on('synced', (address, heads, peer) => {
-        if (heads && heads.length) {
-          // if there are heads to sync, wait for them to be replicated
-          db.events.on('replicated', () => {
-            updatePeers(peer)
-          })
-        } else {
-          updatePeers(peer)
-        }
+        updatePeers(peer)
       })
 
       // request database from peers; should trigger `synced` events, once for each peer per session

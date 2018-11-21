@@ -4,15 +4,20 @@ const ec = new EC('secp256k1')
 // copied from https://raw.githubusercontent.com/orbitdb/orbit-db/master/test/utils/custom-test-keystore.js
 
 class KistoreElliptic {
-  createKey () {
-    const key = ec.genKeyPair()
-    this.key = ec.keyPair({
-      pub: key.getPublic('hex'),
-      priv: key.getPrivate('hex'),
-      privEnc: 'hex',
-      pubEnc: 'hex'
-    })
+  constructor () {
+    this.name = 'elliptic'
+  }
 
+  createKey () {
+    if (!this.key) {
+      const key = ec.genKeyPair()
+      this.key = ec.keyPair({
+        pub: key.getPublic('hex'),
+        priv: key.getPrivate('hex'),
+        privEnc: 'hex',
+        pubEnc: 'hex'
+      })
+    }
     return this.key
   }
 
@@ -24,8 +29,9 @@ class KistoreElliptic {
     return Promise.resolve(ec.keyFromPublic(key, 'hex'))
   }
 
-  importPrivateKey (key) {
-    return Promise.resolve(ec.keyFromPrivate(key, 'hex'))
+  async importPrivateKey (key) {
+    this.key = await ec.keyFromPrivate(key, 'hex')
+    return this.key
   }
 
   sign (key, data) {

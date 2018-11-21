@@ -1,14 +1,14 @@
 {
-  "name": "@projectaspen/kistore-elliptic",
+  "name": "@projectaspen/orbit-connect-client",
   "version": "0.0.0",
-  "description": "Simple orbit-db keystore adapter for ki",
-  "main": "src/kistore-elliptic",
+  "description": "Wrapper for client-side connection to one or more orbit-nodes",
+  "main": "src/orbit-connect-client.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/projectaspen/aspen.git"
+    "url": "git+ssh://git@github.com/projectaspen/aspen.git"
   },
   "author": "Tyler Yasaka",
   "license": "CC0-1.0",
@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/projectaspen/aspen#readme",
   "dependencies": {
-    "elliptic": "^6.4.1"
+    "ipfs": "^0.33.1",
+    "orbit-db": "projectaspen/orbit-db#synced-event",
+    "orbit-db-pubsub": "^0.5.5"
   }
 }

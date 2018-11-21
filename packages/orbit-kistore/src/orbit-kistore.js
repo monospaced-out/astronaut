@@ -1,7 +1,11 @@
 class OrbitKistore {
-  constructor (keyAdapters, primaryAdapter) {
-    this.keyAdapters = keyAdapters
-    this._primaryAdapter = primaryAdapter
+  constructor (keyAdapters) {
+    const hash = {}
+    keyAdapters.forEach(a => {
+      hash[a.name] = a
+    })
+    this.keyAdapters = hash
+    this._primaryAdapter = keyAdapters[0].name
   }
 
   get primaryAdapter () {
@@ -14,7 +18,7 @@ class OrbitKistore {
   }
 
   getKey () {
-    return this.key
+    return this.primaryAdapter.getKey()
   }
 
   importPublicKey (key) {
@@ -27,14 +31,22 @@ class OrbitKistore {
 
   async sign (key, data) {
     const rawSig = await this.primaryAdapter.sign(key, data)
-    return `${this.primaryAdapter}:${rawSig}`
+    return `${this.primaryAdapter.name}:${rawSig}`
+  }
+
+  // verify from public key as a string
+  async verifyFromString(signature, keyString, data) {
+    const exploded = signature.split(':')
+    const adapterName = exploded[0]
+    const key = await this.keyAdapters[adapterName].importPublicKey(keyString)
+    return this.verify(signature, key, data)
   }
 
   verify (signature, key, data) {
     const exploded = signature.split(':')
-    const sigScheme = exploded[0]
+    const adapterName = exploded[0]
     const rawSig = exploded[1]
-    return this.keyAdapters[sigScheme].verify(rawSig, key, data)
+    return this.keyAdapters[adapterName].verify(rawSig, key, data)
   }
 }
 

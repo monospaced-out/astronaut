@@ -1,9 +1,10 @@
 {
-  "name": "@projectaspen/kistore-elliptic",
+  "name": "@projectaspen/orbit-node-ki",
   "version": "0.0.0",
-  "description": "Simple orbit-db keystore adapter for ki",
-  "main": "src/kistore-elliptic",
+  "description": "Implementation of orbit-node for ki",
+  "main": "src/orbit-node-ki.js",
   "scripts": {
+    "start": "node src/orbit-node-ki.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -15,8 +16,5 @@
   "bugs": {
     "url": "https://github.com/projectaspen/aspen/issues"
   },
-  "homepage": "https://github.com/projectaspen/aspen#readme",
-  "dependencies": {
-    "elliptic": "^6.4.1"
-  }
+  "homepage": "https://github.com/projectaspen/aspen#readme"
 }

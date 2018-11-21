@@ -1,6 +1,6 @@
 {
   "name": "@projectaspen/orbit-node-ki",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Implementation of orbit-node for ki",
   "main": "src/orbit-node-ki.js",
   "scripts": {

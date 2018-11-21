@@ -1,6 +1,6 @@
 {
   "name": "@projectaspen/ki-claims",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "General-purpose claims library",
   "main": "src/ki-claims.js",
   "scripts": {

@@ -2,7 +2,7 @@ const Ki = require('../src/ki')
 const KistoreElliptic = require('../../kistore-elliptic/src/kistore-elliptic')
 const KiClaims = require('../../ki-claims/src/ki-claims')
 const OrbitKistore = require('../../orbit-kistore/src/orbit-kistore')
-const OrbitConnect = require('../../orbit-connect/src/orbit-connect')
+const OrbitConnect = require('../../orbit-connect-client/src/orbit-connect-client')
 
 const localNode = '/ip4/127.0.0.1/tcp/4003/ws/ipfs/QmTWv5fGvUSFS8K86zxgGRYCEDLJLqGAXa5yjcZKG6weC5'
 

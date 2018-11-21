@@ -16,15 +16,17 @@ function onMessage (topic, data) {
 }
 
 function onNewPeer (topic, peer) {
-  // console.log('peer', topic, peer)
+  console.log('peer', topic, peer)
 }
 
 class OrbitConnect {
-  constructor ({ nodes, orbitdbOptions, syncTimeout = SYNC_TIMEOUT } = {}) {
+  constructor ({ nodes, orbitdbOptions, syncTimeout = SYNC_TIMEOUT, waitNodes } = {}) {
     const ipfs = new IPFS(ipfsOptions)
     this.orbitdb = new OrbitDB(ipfs, null, orbitdbOptions)
     this.ipfs = ipfs
     this.nodes = nodes
+    this.peers = this.nodes.map(n => n.split('/').slice(-1)[0]) // address is last part of url
+    this.waitNodes = waitNodes || nodes.length // how many nodes to sync with before resolving a query
     this.syncedPeers = {}
     this.connection = this._connectToNodes(nodes)
     this.syncTimeout = syncTimeout // how long to wait for a node to sync data
@@ -100,21 +102,46 @@ class OrbitConnect {
   }
 
   async _syncDb (db) {
+    console.log('peers', this.peers)
     this.syncedPeers[db.id] = this.syncedPeers[db.id] || []
     const syncedPeers = this.syncedPeers[db.id]
+
     await new Promise(resolve => {
-      setTimeout(resolve, this.syncTimeout)
-      db.events.on('synced', peer => {
-        syncedPeers.push(peer)
-        if (syncedPeers.length === this.nodes.length) {
+      const resolveWhenSynced = () => {
+        if (syncedPeers.length === this.waitNodes) {
           resolve()
         }
-      })
-      if (syncedPeers.length === this.nodes.length) {
-        resolve()
       }
+      const updatePeers = (peer) => {
+        if (this.peers.includes(peer) && !syncedPeers.includes(peer)) {
+          syncedPeers.push(peer)
+          // check if peers are now synced
+          resolveWhenSynced()
+        }
+      }
+
+      // check if peers are already synced
+      resolveWhenSynced()
+
+      // listen for `synced` events
+      db.events.on('synced', (address, heads, peer) => {
+        if (heads && heads.length) {
+          // if there are heads to sync, wait for them to be replicated
+          db.events.on('replicated', () => {
+            updatePeers(peer)
+          })
+        } else {
+          updatePeers(peer)
+        }
+      })
+
+      // request database from peers; should trigger `synced` events, once for each peer per session
       this._requestDb(db)
+
+      // Timeout to avoid waiting indefinitely if peers do not respond
+      setTimeout(resolve, this.syncTimeout)
     })
+
     await db.load()
   }
 

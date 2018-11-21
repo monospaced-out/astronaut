@@ -16,6 +16,9 @@
     "url": "https://github.com/projectaspen/aspen/issues"
   },
   "homepage": "https://github.com/projectaspen/aspen#readme",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "elliptic": "^6.4.1"
   }

@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/projectaspen/aspen/issues"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "homepage": "https://github.com/projectaspen/aspen#readme"
 }

@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "description": "Implementation of orbit-node for ki",
   "main": "src/orbit-node-ki.js",
-  "private": true,
   "scripts": {
     "start": "node src/orbit-node-ki.js",
     "test": "echo \"Error: no test specified\" && exit 1"

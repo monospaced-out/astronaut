@@ -18,7 +18,6 @@ async function setup () {
   }
 
   const keyAdapters = [ kistoreElliptic ]
-  // const nodes = [ localNode, '/ip4/35.236.30.233/tcp/4003/ws/ipfs/QmPvaeiTbpXSm4nW9vy5b57mdQ4BWqY5REXFu7W6uGMGKS' ]
   const nodes = [ localNode ]
 
   const keystore = new OrbitKistore(keyAdapters)
@@ -47,16 +46,19 @@ async function getIdentity () {
   return { did, identity }
 }
 
-async function testA () {
+async function getVal (key) {
   const { identity } = await getIdentity()
   console.log('identity', identity)
-  const val = await identity.get('val')
+  const val = await identity.get(key)
   console.log(val)
-  // if (!val) {
-  //   console.log('setting')
-  //   const result = await identity.set('val', 'hehe')
-  //   console.log(result)
-  // }
+}
+
+async function setVal (key, val) {
+  const { identity } = await getIdentity()
+  console.log('identity', identity)
+  console.log('setting')
+  const result = await identity.set(key, val)
+  console.log(result)
 }
 
 async function start () {
@@ -72,6 +74,7 @@ async function start () {
   console.log(claims)
 }
 
-window.testA = testA
+window.getVal = getVal
+window.setVal = setVal
 window.start = start
 setup()

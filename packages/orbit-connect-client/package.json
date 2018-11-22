@@ -1,6 +1,6 @@
 {
   "name": "@projectaspen/orbit-connect-client",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Wrapper for client-side connection to one or more orbit-nodes",
   "main": "src/orbit-connect-client.js",
   "scripts": {
@@ -23,7 +23,7 @@
     "cryptiles": ">=4.1.2",
     "ipfs": "^0.33.1",
     "orbit-db": "projectaspen/orbit-db#b2b3e6d0456e38abca6c6d877cb1b7d34a4635f6",
-    "orbit-db-store": "projectaspen/orbit-db-store#dd35ab9735bf6cb5d01d18d69428ce2386ba74ae",
-    "orbit-db-pubsub": "^0.5.5"
+    "orbit-db-pubsub": "^0.5.5",
+    "orbit-db-store": "projectaspen/orbit-db-store#dd35ab9735bf6cb5d01d18d69428ce2386ba74ae"
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@projectaspen/orbit-connect-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An orbit-db node for providing availability and redundancy",
   "main": "src/orbit-connect-server.js",
   "scripts": {

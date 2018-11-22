@@ -22,7 +22,7 @@
   "dependencies": {
     "cryptiles": ">=4.1.2",
     "ipfs": "^0.33.1",
-    "orbit-db": "projectaspen/orbit-db#synced-event",
+    "orbit-db": "projectaspen/orbit-db#b2b3e6d0456e38abca6c6d877cb1b7d34a4635f6",
     "orbit-db-pubsub": "^0.5.5"
   }
 }

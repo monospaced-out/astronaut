@@ -16,29 +16,39 @@ async function getAccounts () {
     } catch (error) {
       console.error('denied access')
       // User denied account access...
-      return
+      return null
     }
   } else if (!window.web3) {
-    throw new Error('Please use a web3-enabled browser')
+    console.error('Please use a web3-enabled browser')
+    return null
   }
   const web3Provider = window.ethereum || window.web3.currentProvider
   const web3 = new Web3(web3Provider)
   const id = await web3.eth.net.getId()
   if (id !== 4) {
-    throw new Error('Please switch to the Rinkeby testnet.')
+    console.error('Please switch to the Rinkeby testnet.')
+    return null
   }
   const accounts = await web3.eth.getAccounts()
   if (accounts.length === 0) {
-    throw new Error('Please enable your web3 browser by logging in')
+    console.error('Please enable your web3 browser by logging in')
+    return null
   }
   return { account: accounts[0], web3Provider }
 }
 
 async function setup () {
-  const { account, web3Provider } = await getAccounts()
+  const result = await getAccounts()
+  let kistoreEth
+  if (result) {
+    const { account, web3Provider } = result
+    kistoreEth = new KistoreEth(web3Provider)
+    await kistoreEth.importPublicKey(account)
+  } else {
+    kistoreEth = new KistoreEth()
+  }
 
   const kistoreElliptic = new KistoreElliptic()
-  const kistoreEth = new KistoreEth(web3Provider)
 
   let privateKey = window.localStorage.getItem('privateKey')
   if (!privateKey) {
@@ -47,8 +57,6 @@ async function setup () {
   } else {
     await kistoreElliptic.importPrivateKey(privateKey)
   }
-
-  await kistoreEth.importPublicKey(account)
 
   const keyAdapters = [ kistoreElliptic, kistoreEth ]
   const nodes = [ localNode ]

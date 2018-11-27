@@ -1,3 +1,18 @@
+class MultiKey {
+  constructor (adapter) {
+    this.adapter = adapter
+    this.key = adapter.createKey()
+  }
+
+  getPublic () {
+    return `${this.adapter.name}:${this.key.getPublic()}`
+  }
+
+  getPrivate () {
+    return `${this.adapter.name}:${this.key.getPrivate()}`
+  }
+}
+
 class OrbitKistore {
   constructor (keyAdapters) {
     const hash = {}
@@ -13,25 +28,33 @@ class OrbitKistore {
   }
 
   createKey () {
-    this.key = this.primaryAdapter.createKey()
+    if (!this.key) {
+      this.key = new MultiKey(this.primaryAdapter)
+    }
     return this.key
   }
 
   getKey () {
-    return this.primaryAdapter.getKey()
+    return this.createKey()
   }
 
   importPublicKey (key) {
-    return this.primaryAdapter.importPublicKey(key)
+    const exploded = key.split(':')
+    const adapterName = exploded[0]
+    const rawKey = exploded[1]
+    return this.keyAdapters[adapterName].importPublicKey(rawKey)
   }
 
   importPrivateKey (key) {
-    return this.primaryAdapter.importPrivateKey(key)
+    const exploded = key.split(':')
+    const adapterName = exploded[0]
+    const rawKey = exploded[1]
+    return this.keyAdapters[adapterName].importPrivateKey(rawKey)
   }
 
-  async sign (key, data) {
-    const rawSig = await this.primaryAdapter.sign(key, data)
-    return `${this.primaryAdapter.name}:${rawSig}`
+  async sign (multiKey, data) {
+    const rawSig = await multiKey.adapter.sign(multiKey.key, data)
+    return `${multiKey.adapter.name}:${rawSig}`
   }
 
   // verify from public key as a string

@@ -9,12 +9,11 @@ function getToday () {
 }
 
 class KiClaims {
-  constructor ({ ki, did, keystore, orbitConnect, onCreateDb }) {
+  constructor ({ ki, did, keystore, orbitConnect }) {
     this.keystore = keystore
     this.ki = ki
     this.orbitConnect = orbitConnect
     this.did = did
-    this.onCreateDb = onCreateDb
   }
 
   async getClaims (subjectId) {

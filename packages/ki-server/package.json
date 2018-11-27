@@ -1,10 +1,10 @@
 {
-  "name": "@projectaspen/orbit-node-ki",
+  "name": "@projectaspen/ki-server",
   "version": "0.1.0",
   "description": "Implementation of orbit-node for ki",
-  "main": "src/orbit-node-ki.js",
+  "main": "src/ki-server.js",
   "scripts": {
-    "start": "node src/orbit-node-ki.js",
+    "start": "node src/ki-server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

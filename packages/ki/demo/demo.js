@@ -1,13 +1,44 @@
 const Ki = require('../src/ki')
 const KistoreElliptic = require('../../kistore-elliptic/src/kistore-elliptic')
+const KistoreEth = require('../../kistore-eth/src/kistore-eth')
 const KiProfile = require('../../ki-profile/src/ki-profile')
 const OrbitKistore = require('../../orbit-kistore/src/orbit-kistore')
 const OrbitConnect = require('../../orbit-connect-client/src/orbit-connect-client')
+const Web3 = require('web3')
 
 const localNode = '/ip4/127.0.0.1/tcp/4003/ws/ipfs/QmTWv5fGvUSFS8K86zxgGRYCEDLJLqGAXa5yjcZKG6weC5'
 
+async function getAccounts () {
+  if (window.ethereum) {
+    try {
+      // Request account access if needed
+      await window.ethereum.enable()
+    } catch (error) {
+      console.error('denied access')
+      // User denied account access...
+      return
+    }
+  } else if (!window.web3) {
+    throw new Error('Please use a web3-enabled browser')
+  }
+  const web3Provider = window.ethereum || window.web3.currentProvider
+  const web3 = new Web3(web3Provider)
+  const id = await web3.eth.net.getId()
+  if (id !== 4) {
+    throw new Error('Please switch to the Rinkeby testnet.')
+  }
+  const accounts = await web3.eth.getAccounts()
+  if (accounts.length === 0) {
+    throw new Error('Please enable your web3 browser by logging in')
+  }
+  return { account: accounts[0], web3Provider }
+}
+
 async function setup () {
+  const { account, web3Provider } = await getAccounts()
+
   const kistoreElliptic = new KistoreElliptic()
+  const kistoreEth = new KistoreEth(web3Provider)
 
   let privateKey = window.localStorage.getItem('privateKey')
   if (!privateKey) {
@@ -17,7 +48,9 @@ async function setup () {
     await kistoreElliptic.importPrivateKey(privateKey)
   }
 
-  const keyAdapters = [ kistoreElliptic ]
+  await kistoreEth.importPublicKey(account)
+
+  const keyAdapters = [ kistoreElliptic, kistoreEth ]
   const nodes = [ localNode ]
 
   const keystore = new OrbitKistore(keyAdapters)
@@ -30,6 +63,7 @@ async function setup () {
   window.ki = ki
   window.keystore = keystore
   window.orbitConnect = orbitConnect
+  await orbitConnect.connection
   const { did, identity } = await getIdentity()
   window.did = did
   window.identity = identity

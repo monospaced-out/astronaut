@@ -15,15 +15,15 @@ class EthKey {
 }
 
 class OrbitDBEthstore {
-  constructor (web3Provider, ethereumAccount) {
+  constructor (web3Provider) {
+    this.name = 'eth'
     this.web3 = new Web3(web3Provider)
-    if (ethereumAccount) {
-      this.createKey(ethereumAccount)
-    }
   }
 
   createKey (ethereumAccount) {
-    this.key = new EthKey(ethereumAccount)
+    if (!this.key) {
+      this.key = new EthKey(ethereumAccount.toLowerCase())
+    }
     return this.key
   }
 
@@ -44,7 +44,7 @@ class OrbitDBEthstore {
   }
 
   importPublicKey (ethereumAccount) {
-    const key = new EthKey(ethereumAccount)
+    const key = this.createKey(ethereumAccount)
     return Promise.resolve(key)
   }
 

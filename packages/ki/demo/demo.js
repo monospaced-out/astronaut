@@ -1,6 +1,6 @@
 const Ki = require('../src/ki')
 const KistoreElliptic = require('../../kistore-elliptic/src/kistore-elliptic')
-const KiClaims = require('../../ki-claims/src/ki-claims')
+const KiProfile = require('../../ki-profile/src/ki-profile')
 const OrbitKistore = require('../../orbit-kistore/src/orbit-kistore')
 const OrbitConnect = require('../../orbit-connect-client/src/orbit-connect-client')
 
@@ -30,6 +30,10 @@ async function setup () {
   window.ki = ki
   window.keystore = keystore
   window.orbitConnect = orbitConnect
+  const { did, identity } = await getIdentity()
+  window.did = did
+  window.identity = identity
+  console.log('setup complete')
 }
 
 async function getIdentity () {
@@ -47,34 +51,62 @@ async function getIdentity () {
 }
 
 async function getVal (key) {
-  const { identity } = await getIdentity()
+  const { identity } = window
   console.log('identity', identity)
   const val = await identity.get(key)
   console.log(val)
 }
 
 async function setVal (key, val) {
-  const { identity } = await getIdentity()
+  const { identity } = window
   console.log('identity', identity)
   console.log('setting')
   const result = await identity.set(key, val)
   console.log(result)
 }
 
-async function start () {
+async function getAttribute (did, attribute) {
   const { ki, keystore, orbitConnect } = window
-  const { did, identity } = await getIdentity()
-  console.log(did, identity)
-  const kiClaims = new KiClaims({ ki, did, keystore, orbitConnect })
-  window.kiClaims = kiClaims
-  const claim = await kiClaims.issueClaim(did, 'SpiritAnimal', 'bobwhite')
-  console.log(claim)
-  await kiClaims.addClaim(claim)
-  const claims = await kiClaims.getClaims(did)
-  console.log(claims)
+  if (!did) {
+    did = window.did
+  }
+  const profile = new KiProfile({ ki, did, keystore, orbitConnect })
+  window.profile = profile
+  const result = await profile.get(did, attribute)
+  console.log(result)
+}
+
+async function setAttribute (attribute, value) {
+  const { ki, keystore, orbitConnect } = window
+  const did = (await getIdentity()).did
+  const profile = new KiProfile({ ki, did, keystore, orbitConnect })
+  window.profile = profile
+  await profile.set(attribute, value)
+  console.log('attribute set')
+}
+
+async function issueAttestation (subjectId, attribute, value) {
+  const { ki, keystore, orbitConnect } = window
+  const did = (await getIdentity()).did
+  const profile = new KiProfile({ ki, did, keystore, orbitConnect })
+  window.profile = profile
+  const attestation = await profile.issueAttestation(subjectId, attribute, value)
+  console.log(JSON.stringify(attestation))
+}
+
+async function addAttestation (attestation) {
+  const { ki, keystore, orbitConnect } = window
+  const did = (await getIdentity()).did
+  const profile = new KiProfile({ ki, did, keystore, orbitConnect })
+  window.profile = profile
+  await profile.addAttestation(attestation)
+  console.log('attestation added')
 }
 
 window.getVal = getVal
 window.setVal = setVal
-window.start = start
+window.getAttribute = getAttribute
+window.setAttribute = setAttribute
+window.issueAttestation = issueAttestation
+window.addAttestation = addAttestation
 setup()

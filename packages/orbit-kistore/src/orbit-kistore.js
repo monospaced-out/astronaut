@@ -35,7 +35,7 @@ class OrbitKistore {
   }
 
   // verify from public key as a string
-  async verifyFromString(signature, keyString, data) {
+  async verifyFromString (signature, keyString, data) {
     const exploded = signature.split(':')
     const adapterName = exploded[0]
     const key = await this.keyAdapters[adapterName].importPublicKey(keyString)

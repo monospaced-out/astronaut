@@ -19,6 +19,9 @@ class KiClaims {
   async getClaims (subjectId) {
     const identity = await this.ki.getIdentity(subjectId)
     const claimsDb = await this._getClaimsDb(identity)
+    if (!claimsDb) {
+      return []
+    }
     const claims = claimsDb.iterator({ limit: -1 })
       .collect()
       .map((e) => e.payload.value)
@@ -76,7 +79,7 @@ class KiClaims {
   async _getClaimsDb (identity) {
     const existing = await identity.get(CLAIMS_DB_KEY)
     if (!existing) {
-      throw new Error(`The identity ${identity.did} does not have a claims database`)
+      return null
     }
     return this.orbitConnect.feed(existing)
   }

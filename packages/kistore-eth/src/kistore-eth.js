@@ -1,18 +1,5 @@
 const Web3 = require('web3')
-
-class EthKey {
-  constructor (publicKey) {
-    this.publicKey = publicKey.toLowerCase()
-  }
-
-  getPublic () {
-    return this.publicKey
-  }
-
-  getPrivate () {
-    throw new Error('Cannot access the user\'s ethereum private key')
-  }
-}
+const EthKey = require('./eth-key')
 
 class OrbitDBEthstore {
   constructor (web3Provider) {

@@ -26,7 +26,10 @@ class KistoreElliptic {
   }
 
   importPublicKey (key) {
-    return Promise.resolve(ec.keyFromPublic(key, 'hex'))
+    if (!key) {
+      this.key = ec.keyFromPublic(key, 'hex')
+    }
+    return Promise.resolve(this.key)
   }
 
   async importPrivateKey (key) {

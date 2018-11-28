@@ -59,6 +59,17 @@ class Ki {
     const db = await this.orbitConnect.open(`/orbitdb/${address}/${DB_NAME}`)
     return new Identity(db)
   }
+
+  async deriveDid (keyAdapter, publicKey) {
+    const orbitdb = this.orbitConnect.orbitdb
+    const keyStr = `${keyAdapter.name}:${publicKey}`
+    const address = await orbitdb.determineAddress(
+      DB_NAME,
+      'keyvalue',
+      { write: [keyStr] }
+    )
+    return `did:ki:${address.root}`
+  }
 }
 
 module.exports = Ki

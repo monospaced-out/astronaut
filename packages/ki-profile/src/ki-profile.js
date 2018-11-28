@@ -6,9 +6,9 @@ const ATTESTATION_TYPE = 'profile-attestation'
 
 class KiProfile {
   constructor ({ ki, did, keystore, orbitConnect }) {
-    this.keystore = keystore
     this.ki = ki
-    this.orbitConnect = orbitConnect
+    this.keystore = ki.keystore
+    this.orbitConnect = ki.orbitConnect
     this.did = did
     this.kiClaims = new KiClaims({ ki, did, keystore, orbitConnect })
   }

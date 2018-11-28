@@ -1,3 +1,6 @@
+const OrbitKistore = require('../../orbit-kistore/src/orbit-kistore')
+const OrbitConnect = require('../../orbit-connect-client/src/orbit-connect-client')
+
 const DB_NAME = 'ki'
 
 function didToAddress (id) {
@@ -35,9 +38,15 @@ class Identity {
 }
 
 class Ki {
-  constructor ({ orbitConnect, keystore } = {}) {
+  constructor ({ keyAdapters, nodes } = {}) {
+    const keystore = new OrbitKistore(keyAdapters)
+    const orbitConnect = new OrbitConnect({
+      nodes,
+      orbitdbOptions: { keystore }
+    })
     this.orbitConnect = orbitConnect
     this.keystore = keystore
+    this.connection = orbitConnect.connection
   }
 
   async createIdentity () {

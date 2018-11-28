@@ -11,11 +11,13 @@ class KiProfile {
     this.orbitConnect = ki.orbitConnect
     this.did = did
     this.kiClaims = new KiClaims({ ki, did, keystore, orbitConnect })
+    this.dbCache = {}
+    this.identityCache = {}
   }
 
   async get (subjectId, attribute) {
     const claims = await this.kiClaims.getClaims(subjectId)
-    const identity = await this.ki.getIdentity(subjectId)
+    const identity = await this._getIdentity(subjectId)
     const profile = await this._getProfileDb(identity)
     if (!profile) {
       return { value: null, attestations: [] }
@@ -54,21 +56,40 @@ class KiProfile {
   }
 
   async _getOrCreateProfileDb (identity) {
+    if (this.dbCache[identity.did]) {
+      return this.dbCache[identity.did]
+    }
     const existing = await identity.get(PROFILE_DB_KEY)
     const nameOrAddress = existing || PROFILE_DB_NAME
     const db = await this.orbitConnect.keyvalue(nameOrAddress)
     if (!existing) {
       await identity.set(PROFILE_DB_KEY, db.id)
     }
+    this.dbCache[identity.did] = db
     return db
   }
 
   async _getProfileDb (identity) {
+    if (this.dbCache[identity.did]) {
+      return this.dbCache[identity.did]
+    }
     const existing = await identity.get(PROFILE_DB_KEY)
     if (!existing) {
       return null
     }
-    return this.orbitConnect.keyvalue(existing)
+    const db = await this.orbitConnect.keyvalue(existing)
+    this.dbCache[identity.did] = db
+    return db
+  }
+
+  async _getIdentity (did) {
+    if (this.identityCache[did]) {
+      return this.identityCache[did]
+    } else {
+      const identity = await this.ki.getIdentity(did)
+      this.identityCache[did] = identity
+      return identity
+    }
   }
 }
 

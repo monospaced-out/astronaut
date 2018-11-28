@@ -1,0 +1,37 @@
+{
+  "name": "@projectaspen/ki-ethereum-ui",
+  "version": "0.1.0",
+  "description": "Self sovereign identity built on IPFS and orbit-db",
+  "main": "src/ki-ethereum-ui.js",
+  "scripts": {
+    "start": "npx webpack-dev-server --open",
+    "build": "npx webpack",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/projectaspen/aspen.git"
+  },
+  "author": "Tyler Yasaka",
+  "license": "CC0-1.0",
+  "bugs": {
+    "url": "https://github.com/projectaspen/aspen/issues"
+  },
+  "homepage": "https://github.com/projectaspen/aspen#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "choo": "^6.13.1",
+    "web3": "^1.0.0-beta.36"
+  },
+  "devDependencies": {
+    "css-loader": "^1.0.1",
+    "html-webpack-plugin": "^3.2.0",
+    "style-loader": "^0.23.1",
+    "tachyons": "^4.11.1",
+    "webpack": "^4.25.1",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.10"
+  }
+}

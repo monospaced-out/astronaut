@@ -16,7 +16,7 @@ function onMessage (topic, data) {
 }
 
 function onNewPeer (topic, peer) {
-  console.log('peer', topic, peer)
+  // console.log('peer', topic, peer)
 }
 
 class OrbitConnect {

@@ -24,6 +24,6 @@
     "ipfs": "^0.33.1",
     "orbit-db": "projectaspen/orbit-db#orbit-connect-client",
     "orbit-db-pubsub": "^0.5.5",
-    "orbit-db-store": "projectaspen/orbit-db-store#dd35ab9735bf6cb5d01d18d69428ce2386ba74ae"
+    "orbit-db-store": "projectaspen/orbit-db-store#peer-exchanged"
   }
 }

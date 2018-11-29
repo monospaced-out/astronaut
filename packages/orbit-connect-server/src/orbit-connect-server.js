@@ -18,7 +18,7 @@ let openDBs = {}
 async function openDB (address) {
   console.log('Opening db:', address)
   openDBs[address] = await orbitdb.open(address)
-  await openDBs[address].load()
+  openDBs[address].load()
 }
 
 async function onMessage (topic, data) {

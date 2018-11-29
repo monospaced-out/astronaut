@@ -2,7 +2,7 @@ const IPFS = require('ipfs')
 const OrbitDB = require('orbit-db')
 const Pubsub = require('orbit-db-pubsub')
 
-const SYNC_TIMEOUT = 5000
+const SYNC_TIMEOUT = 20000
 const ROOM = 'orbit-connect'
 
 const ipfsOptions = {
@@ -30,6 +30,7 @@ class OrbitConnect {
     this.syncedPeers = {}
     this.connection = this._connectToNodes(nodes)
     this.syncTimeout = syncTimeout // how long to wait for a node to sync data
+    this.cache = {}
   }
 
   async open (address, options) {
@@ -102,6 +103,12 @@ class OrbitConnect {
   }
 
   async _syncDb (db) {
+    await db.load()
+
+    if (this.cache[db.id]) {
+      return this.cache[db.id]
+    }
+
     this.syncedPeers[db.id] = this.syncedPeers[db.id] || []
     const syncedPeers = this.syncedPeers[db.id]
 

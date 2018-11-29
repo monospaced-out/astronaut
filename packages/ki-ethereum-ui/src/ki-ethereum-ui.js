@@ -6,7 +6,9 @@ const choo = require('choo')
 const html = require('choo/html')
 require('../node_modules/tachyons/css/tachyons.min.css')
 
-const KI_NODE = '/ip4/127.0.0.1/tcp/4003/ws/ipfs/QmTWv5fGvUSFS8K86zxgGRYCEDLJLqGAXa5yjcZKG6weC5'
+const KI_NODES = [
+  '/ip4/127.0.0.1/tcp/4003/ws/ipfs/QmTWv5fGvUSFS8K86zxgGRYCEDLJLqGAXa5yjcZKG6weC5'
+]
 
 const app = choo()
 app.use(store)
@@ -22,6 +24,7 @@ function mainView (state, emit) {
     image,
     loading
   } = state
+  window.state = state
   const canEdit = !state.params.wallet
   const _name = (name && name.value) || 'Anonymous'
   const src = image ? `https://ipfs.infura.io/ipfs/${image.contentUrl['/']}` : 'http://tachyons.io/img/logo.jpg'
@@ -62,7 +65,7 @@ function mainView (state, emit) {
         ` : null}
         ${canEdit ? html`
           <div>
-            <h3><a target="_blank" href="/#wallet/${state.myWallet}" class="f5 fw6 db blue no-underline underline-hover">My public profile link</a></h3>
+            <h3><a target="_blank" href="/#wallet/${state.myWallet}" class="f5 fw6 db blue no-underline underline-hover">My public profile</a></h3>
           </div>
         ` : null}
 
@@ -161,8 +164,7 @@ function store (state, emitter) {
     kistoreEth = new KistoreEth(web3Provider)
     await kistoreEth.importPublicKey(myWallet)
     const keyAdapters = [ kistoreEth ]
-    const nodes = [ ]
-    state.ki = new Ki({ keyAdapters, nodes })
+    state.ki = new Ki({ keyAdapters, nodes: KI_NODES })
     await state.ki.connection
     const wallet = state.params.wallet || myWallet
     state.did = await state.ki.deriveDid(kistoreEth, wallet.toLowerCase())

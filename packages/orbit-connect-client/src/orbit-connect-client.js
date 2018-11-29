@@ -123,7 +123,7 @@ class OrbitConnect {
       resolveWhenSynced()
 
       // listen for `synced` events
-      db.events.on('synced', (address, heads, peer) => {
+      db.events.on('peer.exchanged', (peer, address, heads) => {
         updatePeers(peer)
       })
 

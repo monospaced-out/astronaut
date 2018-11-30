@@ -4,6 +4,7 @@ const KiProfile = require('../../ki-profile/src/ki-profile')
 const Web3 = require('web3')
 const choo = require('choo')
 const html = require('choo/html')
+const makeBlockie = require('ethereum-blockies-base64')
 require('../node_modules/tachyons/css/tachyons.min.css')
 
 const KI_NODES = [
@@ -21,13 +22,12 @@ function mainView (state, emit) {
     did,
     profileAttributes: { name, bio, twitter, github },
     inputs,
-    image,
     loading
   } = state
   window.state = state
   const canEdit = !state.params.wallet
   const _name = (name && name.value) || 'Anonymous'
-  const src = image ? `https://ipfs.infura.io/ipfs/${image.contentUrl['/']}` : 'http://tachyons.io/img/logo.jpg'
+  const blockie = makeBlockie(did || 'anonymous')
   const loadingSpinner = html`
     <div class="dark-overlay" onclick="return false;">
       <div class="lds-dual-ring"></div>
@@ -45,7 +45,7 @@ function mainView (state, emit) {
   const viewContent = html`
     <div>
       <header class="tc pv4 pv5-ns">
-        <img src=${src} class="br-100 pa1 ba b--black-10 h3 w3" alt="avatar">
+        <img src=${blockie} class="br-100 pa1 ba b--black-10 h3 w3" alt="avatar">
         <h1 class="f5 f4-ns fw6 mid-gray">${_name}</h1>
         ${did ? html`
           <h2 class="f6 gray fw2 tracked">${did}</h2>
@@ -86,14 +86,14 @@ function mainView (state, emit) {
   const editContent = html`
     <div>
       <header class="tc pv4 pv5-ns">
-        <img src=${src} class="br-100 pa1 ba b--black-10 h3 w3" alt="avatar">
+        <img src=${blockie} class="br-100 pa1 ba b--black-10 h3 w3" alt="avatar">
         <h1 class="f5 f4-ns fw6 mid-gray">${_name}</h1>
         ${did ? html`
           <h2 class="f6 gray fw2 tracked">${did}</h2>
         ` : null}
         ${canEdit ? html`
           <div>
-            <h3><a target="_blank" href="/#wallet/${state.myWallet}" class="f5 fw6 db blue no-underline underline-hover">My public profile</a></h3>
+            <h3><a href="#wallet/${state.myWallet}" class="f5 fw6 db blue no-underline underline-hover">My public profile</a></h3>
           </div>
         ` : null}
 

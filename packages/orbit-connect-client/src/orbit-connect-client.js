@@ -8,6 +8,13 @@ const ROOM = 'orbit-connect'
 const ipfsOptions = {
   EXPERIMENTAL: {
     pubsub: true
+  },
+  libp2p: {
+    config: {
+      peerDiscovery: {
+        enabled: false
+      }
+    }
   }
 }
 

@@ -7,9 +7,7 @@ const html = require('choo/html')
 const makeBlockie = require('ethereum-blockies-base64')
 require('../node_modules/tachyons/css/tachyons.min.css')
 
-const KI_NODES = [
-  '/ip4/127.0.0.1/tcp/4003/ws/ipfs/QmTWv5fGvUSFS8K86zxgGRYCEDLJLqGAXa5yjcZKG6weC5'
-]
+const KI_NODES = process.env.KI_NODES ? process.env.KI_NODES.split(',') : []
 
 const app = choo()
 app.use(store)

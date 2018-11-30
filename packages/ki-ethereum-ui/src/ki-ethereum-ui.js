@@ -204,7 +204,13 @@ function store (state, emitter) {
     await state.ki.connection
     const wallet = state.params.wallet || myWallet
     state.did = await state.ki.deriveDid(kistoreEth, wallet.toLowerCase())
-    state.identity = await state.ki.getIdentity(state.did)
+    const savedDid = window.localStorage.getItem('did')
+    if (savedDid === state.did) {
+      state.identity = await state.ki.getIdentity(state.did)
+    } else {
+      state.identity = await state.ki.createIdentity(state.did)
+      window.localStorage.setItem('did', state.did)
+    }
     state.profile = new KiProfile({ ki: state.ki, did: state.did })
     emitter.emit('loadProfile')
   })

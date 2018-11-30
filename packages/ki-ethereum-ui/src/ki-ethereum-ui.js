@@ -36,6 +36,11 @@ function mainView (state, emit) {
 
   const footer = html`
     <footer class="tc pv4 pv5-ns">
+      ${!canEdit ? html`
+        <div class="f6 gray fw2 tracked">
+          <h3><a href="/" class="f5 fw6 db blue no-underline underline-hover">My profile</a></h3>
+        </div>
+      ` : null}
       <div class="f6 gray fw2 tracked">Ki-Ethereum</div>
       <div class="f6 gray fw2 tracked">Copyright and related rights waived via <a class="blue no-underline underline-hover" href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank">CC0</a>.</div>
       <div class="f6 gray fw2 tracked">Source code on <a class="blue no-underline underline-hover" href="https://github.com/projectaspen/aspen" target="_blank">github</a>.</div>
@@ -153,26 +158,6 @@ function store (state, emitter) {
   state.loading = true
 
   emitter.on('DOMContentLoaded', async function () {
-    if (window.ethereum) {
-      try {
-        // Request account access if needed
-        await window.ethereum.enable()
-      } catch (error) {
-        console.error('denied access')
-        // User denied account access...
-        return
-      }
-    }
-    if (!state.params.wallet) {
-      state.web3Provider = window.ethereum || (window.web3 && window.web3.currentProvider) || Web3.givenProvider
-      const web3 = new Web3(state.web3Provider)
-      const accounts = await web3.eth.getAccounts()
-      if (accounts.length === 0) {
-        window.alert('Please enable your web3 browser by logging in')
-        return
-      }
-      state.myWallet = accounts[0]
-    }
     emitter.emit('render')
     emitter.emit('init')
   })
@@ -189,16 +174,35 @@ function store (state, emitter) {
 
   emitter.on('init', async function () {
     emitter.emit('startLoading')
-    const isReadOnly = state.params.wallet
-    let kistoreEth
+    const isReadOnly = Boolean(state.params.wallet)
+    if (window.ethereum) {
+      try {
+        // Request account access if needed
+        await window.ethereum.enable()
+      } catch (error) {
+        console.error('denied access')
+        // User denied account access...
+        return
+      }
+    }
+    if (!isReadOnly) {
+      state.web3Provider = window.ethereum || (window.web3 && window.web3.currentProvider) || Web3.givenProvider
+      const web3 = new Web3(state.web3Provider)
+      const accounts = await web3.eth.getAccounts()
+      if (accounts.length === 0) {
+        window.alert('Please enable your web3 browser by logging in')
+        return
+      }
+      state.myWallet = accounts[0]
+    }
     const { myWallet, web3Provider } = state
     const wallet = state.params.wallet || myWallet
-    kistoreEth = new KistoreEth(web3Provider)
-    await kistoreEth.importPublicKey(wallet)
-    const keyAdapters = [ kistoreEth ]
-    state.ki = new Ki({ keyAdapters, nodes: KI_NODES })
+    state.kistoreEth = state.kistoreEth || new KistoreEth(web3Provider)
+    await state.kistoreEth.importPublicKey(wallet)
+    const keyAdapters = [ state.kistoreEth ]
+    state.ki = state.ki || new Ki({ keyAdapters, nodes: KI_NODES })
     await state.ki.connection
-    state.did = await state.ki.deriveDid(kistoreEth, wallet.toLowerCase())
+    state.did = await state.ki.deriveDid(state.kistoreEth, wallet.toLowerCase())
     const savedDid = window.localStorage.getItem('did')
     if (savedDid === state.did) {
       state.identity = await state.ki.getIdentity(state.did)
@@ -240,5 +244,9 @@ function store (state, emitter) {
       }
     }
     emitter.emit('loadProfile')
+  })
+
+  emitter.on('navigate', function () {
+    emitter.emit('init')
   })
 }

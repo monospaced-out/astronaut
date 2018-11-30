@@ -162,23 +162,17 @@ function store (state, emitter) {
         // User denied account access...
         return
       }
-    } else if (!window.web3) {
-      window.alert('Please use a web3-enabled browser')
-      return
     }
-    state.web3Provider = window.ethereum || window.web3.currentProvider
-    const web3 = new Web3(state.web3Provider)
-    const id = await web3.eth.net.getId()
-    if (id !== 4) {
-      window.alert('Please switch to the Rinkeby testnet.')
-      return
+    if (!state.params.wallet) {
+      state.web3Provider = window.ethereum || (window.web3 && window.web3.currentProvider) || Web3.givenProvider
+      const web3 = new Web3(state.web3Provider)
+      const accounts = await web3.eth.getAccounts()
+      if (accounts.length === 0) {
+        window.alert('Please enable your web3 browser by logging in')
+        return
+      }
+      state.myWallet = accounts[0]
     }
-    const accounts = await web3.eth.getAccounts()
-    if (accounts.length === 0) {
-      window.alert('Please enable your web3 browser by logging in')
-      return
-    }
-    state.myWallet = accounts[0]
     emitter.emit('render')
     emitter.emit('init')
   })
@@ -195,19 +189,20 @@ function store (state, emitter) {
 
   emitter.on('init', async function () {
     emitter.emit('startLoading')
+    const isReadOnly = state.params.wallet
     let kistoreEth
     const { myWallet, web3Provider } = state
+    const wallet = state.params.wallet || myWallet
     kistoreEth = new KistoreEth(web3Provider)
-    await kistoreEth.importPublicKey(myWallet)
+    await kistoreEth.importPublicKey(wallet)
     const keyAdapters = [ kistoreEth ]
     state.ki = new Ki({ keyAdapters, nodes: KI_NODES })
     await state.ki.connection
-    const wallet = state.params.wallet || myWallet
     state.did = await state.ki.deriveDid(kistoreEth, wallet.toLowerCase())
     const savedDid = window.localStorage.getItem('did')
     if (savedDid === state.did) {
       state.identity = await state.ki.getIdentity(state.did)
-    } else {
+    } else if (!isReadOnly) {
       state.identity = await state.ki.createIdentity(state.did)
       window.localStorage.setItem('did', state.did)
     }

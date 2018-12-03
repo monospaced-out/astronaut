@@ -1,5 +1,5 @@
 # Aspen
-Building the web of trust
+An ecosystem of peer-to-peer trust
 
 [![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lernajs.io/)
 

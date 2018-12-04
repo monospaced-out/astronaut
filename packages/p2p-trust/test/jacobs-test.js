@@ -46,26 +46,25 @@ describe('jacobs algorithm', function () {
   it('should correctly score a neighbor', async function () {
     const p2pTrust = new P2PTrust()
     const trust = p2pTrust.getTrust(graph1, 'a', 'b')
-    assert.strictEqual(trust, 0.5)
+    assert.strictEqual(trust.toString(), '0.5')
   })
 
   it('should correctly score a second-degree connection', async function () {
     const p2pTrust = new P2PTrust()
     const trust = p2pTrust.getTrust(graph2, 'a', 'c')
-    assert.strictEqual(trust, 0.25)
+    assert.strictEqual(trust.toString(), '0.25')
   })
 
   it('should correctly take into account multiple paths', async function () {
     const p2pTrust = new P2PTrust()
     const trust = p2pTrust.getTrust(graph3, 'a', 'd')
-    assert.strictEqual(trust, 0.4375)
+    assert.strictEqual(trust.toString(), '0.4375')
   })
 
   it('should allow discount to be configured', async function () {
     const p2pTrust = new P2PTrust({ discount: 0.2 })
     const trust = p2pTrust.getTrust(graph3, 'a', 'd')
-    const rounded = Math.round(trust * 10000) / 10000
-    assert.strictEqual(rounded, 0.8704)
+    assert.strictEqual(trust.toString(), '0.8704')
   })
 
   it('should allow gradient to be configured', async function () {
@@ -76,7 +75,6 @@ describe('jacobs algorithm', function () {
     }
     const p2pTrust = new P2PTrust({ gradient })
     const trust = p2pTrust.getTrust(graph3, 'a', 'd')
-    const rounded = Math.round(trust * 1000000) / 1000000
-    assert.strictEqual(rounded, 0.234375)
+    assert.strictEqual(trust.toString(), '0.234375')
   })
 })

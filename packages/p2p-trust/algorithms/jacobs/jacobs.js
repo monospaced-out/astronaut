@@ -1,9 +1,11 @@
+const Big = require('../../big')
+
 function helper (graph, source, target, visited, currentDiscount, gradient) {
   if (source === target) {
-    return 1
+    return new Big(1)
   }
   if (visited.includes(source)) {
-    return 0
+    return new Big(0)
   }
   let newVisited = visited.slice(0) // clone array
   newVisited.push(source)
@@ -17,16 +19,16 @@ function helper (graph, source, target, visited, currentDiscount, gradient) {
       gradient ? gradient(currentDiscount) : currentDiscount,
       gradient
     )
-    const toSuccessor = 1 - currentDiscount
-    const throughSuccessor = toSuccessor * fromSuccessor
-    return 1 - throughSuccessor
+    const toSuccessor = new Big(1).minus(currentDiscount)
+    const throughSuccessor = toSuccessor.times(fromSuccessor)
+    return new Big(1).minus(throughSuccessor)
   })
-  const totalDoubt = doubts.reduce((acc, cur) => acc * cur, 1)
-  return 1 - totalDoubt
+  const totalDoubt = doubts.reduce((acc, cur) => acc.times(cur), new Big(1))
+  return new Big(1).minus(totalDoubt)
 }
 
 function jacobs (graph, source, target, config) {
-  return helper(graph, source, target, [], config.discount || 0.5, config.gradient)
+  return helper(graph, source, target, [], new Big(config.discount || 0.5), config.gradient)
 }
 
 module.exports = jacobs

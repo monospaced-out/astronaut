@@ -1,6 +1,6 @@
 const Big = require('../../big')
 
-function helper (graph, source, target, visited, currentDiscount, gradient) {
+function helper (graph, source, target, visited, currentConfidence, gradient) {
   if (source === target) {
     return new Big(1)
   }
@@ -16,11 +16,10 @@ function helper (graph, source, target, visited, currentDiscount, gradient) {
       successor,
       target,
       newVisited,
-      gradient ? gradient(currentDiscount) : currentDiscount,
+      gradient ? gradient(currentConfidence) : currentConfidence,
       gradient
     )
-    const toSuccessor = new Big(1).minus(currentDiscount)
-    const throughSuccessor = toSuccessor.times(fromSuccessor)
+    const throughSuccessor = fromSuccessor.times(currentConfidence)
     return new Big(1).minus(throughSuccessor)
   })
   const totalDoubt = doubts.reduce((acc, cur) => acc.times(cur), new Big(1))
@@ -28,7 +27,7 @@ function helper (graph, source, target, visited, currentDiscount, gradient) {
 }
 
 function jacobs (graph, source, target, config) {
-  return helper(graph, source, target, [], new Big(config.discount || 0.5), config.gradient)
+  return helper(graph, source, target, [], new Big(config.confidence || 0.5), config.gradient)
 }
 
 module.exports = jacobs

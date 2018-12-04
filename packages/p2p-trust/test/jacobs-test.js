@@ -1,5 +1,7 @@
 /* globals describe, it */
 
+const Big = require('../big')
+
 const P2PTrust = require('../src/p2p-trust')
 const Graph = require('../graph')
 const assert = require('assert')
@@ -61,17 +63,15 @@ describe('jacobs algorithm', function () {
     assert.strictEqual(trust.toString(), '0.4375')
   })
 
-  it('should allow discount to be configured', async function () {
-    const p2pTrust = new P2PTrust({ discount: 0.2 })
+  it('should allow confidence to be configured', async function () {
+    const p2pTrust = new P2PTrust({ confidence: 0.8 })
     const trust = p2pTrust.getTrust(graph3, 'a', 'd')
     assert.strictEqual(trust.toString(), '0.8704')
   })
 
   it('should allow gradient to be configured', async function () {
-    const gradient = (discount) => {
-      const confidence = 1 - discount
-      const newConfidence = 0.5 * confidence
-      return 1 - newConfidence
+    const gradient = confidence => {
+      return new Big(0.5).times(confidence)
     }
     const p2pTrust = new P2PTrust({ gradient })
     const trust = p2pTrust.getTrust(graph3, 'a', 'd')

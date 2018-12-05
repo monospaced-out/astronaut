@@ -61,6 +61,22 @@ graph4.setEdge('a', 'c', 1)
 graph4.setEdge('b', 'd', 1)
 graph4.setEdge('c', 'd', 1)
 graph4.setEdge('d', 'e', 1)
+graph4.setNode('f')
+
+/*
+  graph 5:
+
+    a
+   / \   <- 0.5
+  b   c
+   \ /   <- 0.25
+    d
+*/
+const graph5 = new Graph()
+graph5.setEdge('a', 'b', 0.5)
+graph5.setEdge('a', 'c', 0.5)
+graph5.setEdge('b', 'd', 0.25)
+graph5.setEdge('c', 'd', 0.25)
 
 describe('jacobs algorithm', function () {
   it('should correctly score a neighbor', async function () {
@@ -85,5 +101,17 @@ describe('jacobs algorithm', function () {
     const p2pTrust = new P2PTrust()
     const trust = p2pTrust.getTrust(graph4, 'a', 'e')
     assert.strictEqual(trust.toString(), '1')
+  })
+
+  it('should return 0 when there is no connecting path', async function () {
+    const p2pTrust = new P2PTrust()
+    const trust = p2pTrust.getTrust(graph4, 'a', 'f')
+    assert.strictEqual(trust.toString(), '0')
+  })
+
+  it('should handle multiple confidence levels', async function () {
+    const p2pTrust = new P2PTrust()
+    const trust = p2pTrust.getTrust(graph5, 'a', 'd')
+    assert.strictEqual(trust.toString(), '0.234375')
   })
 })

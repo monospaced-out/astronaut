@@ -14,7 +14,7 @@ const assert = require('assert')
   b
 */
 const graph1 = new Graph()
-graph1.setEdge('a', 'b')
+graph1.setEdge('a', 'b', 0.5)
 
 /*
   graph 2:
@@ -26,8 +26,8 @@ graph1.setEdge('a', 'b')
   c
 */
 const graph2 = new Graph()
-graph2.setEdge('a', 'b')
-graph2.setEdge('b', 'c')
+graph2.setEdge('a', 'b', 0.5)
+graph2.setEdge('b', 'c', 0.5)
 
 /*
   graph 3:
@@ -39,10 +39,28 @@ graph2.setEdge('b', 'c')
     d
 */
 const graph3 = new Graph()
-graph3.setEdge('a', 'b')
-graph3.setEdge('a', 'c')
-graph3.setEdge('b', 'd')
-graph3.setEdge('c', 'd')
+graph3.setEdge('a', 'b', 0.5)
+graph3.setEdge('a', 'c', 0.5)
+graph3.setEdge('b', 'd', 0.5)
+graph3.setEdge('c', 'd', 0.5)
+
+/*
+  graph 4:
+
+    a
+   / \
+  b   c
+   \ /
+    d
+    |
+    e
+*/
+const graph4 = new Graph()
+graph4.setEdge('a', 'b', 1)
+graph4.setEdge('a', 'c', 1)
+graph4.setEdge('b', 'd', 1)
+graph4.setEdge('c', 'd', 1)
+graph4.setEdge('d', 'e', 1)
 
 describe('jacobs algorithm', function () {
   it('should correctly score a neighbor', async function () {
@@ -63,18 +81,9 @@ describe('jacobs algorithm', function () {
     assert.strictEqual(trust.toString(), '0.4375')
   })
 
-  it('should allow confidence to be configured', async function () {
-    const p2pTrust = new P2PTrust({ confidence: 0.8 })
-    const trust = p2pTrust.getTrust(graph3, 'a', 'd')
-    assert.strictEqual(trust.toString(), '0.8704')
-  })
-
-  it('should allow gradient to be configured', async function () {
-    const gradient = confidence => {
-      return new Big(0.5).times(confidence)
-    }
-    const p2pTrust = new P2PTrust({ gradient })
-    const trust = p2pTrust.getTrust(graph3, 'a', 'd')
-    assert.strictEqual(trust.toString(), '0.234375')
+  it('should return 1 when all trust links have confidence of 1', async function () {
+    const p2pTrust = new P2PTrust()
+    const trust = p2pTrust.getTrust(graph4, 'a', 'e')
+    assert.strictEqual(trust.toString(), '1')
   })
 })

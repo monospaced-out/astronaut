@@ -1,6 +1,6 @@
 const Big = require('../../big')
 
-function helper (graph, source, target, visited, currentConfidence, gradient) {
+function helper (graph, source, target, visited) {
   if (source === target) {
     return new Big(1)
   }
@@ -11,15 +11,14 @@ function helper (graph, source, target, visited, currentConfidence, gradient) {
   newVisited.push(source)
   const successors = graph.successors(source)
   const doubts = successors.map((successor) => {
+    const confidence = graph.edge(source, successor)
     const fromSuccessor = helper(
       graph,
       successor,
       target,
-      newVisited,
-      gradient ? gradient(currentConfidence) : currentConfidence,
-      gradient
+      newVisited
     )
-    const throughSuccessor = fromSuccessor.times(currentConfidence)
+    const throughSuccessor = fromSuccessor.times(confidence)
     return new Big(1).minus(throughSuccessor)
   })
   const totalDoubt = doubts.reduce((acc, cur) => acc.times(cur), new Big(1))

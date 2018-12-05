@@ -1,6 +1,5 @@
 const jacobs = require('../metrics/jacobs/jacobs')
 const Graph = require('@dagrejs/graphlib').Graph
-const Big = require('big.js')
 
 const metrics = {
   jacobs
@@ -19,7 +18,7 @@ class P2PTrust {
   }
 
   setLink (from, to, confidence) {
-    this.graph.setEdge(from, to, new Big(confidence))
+    this.graph.setEdge(from, to, confidence)
   }
 
   getLink (from, to) {

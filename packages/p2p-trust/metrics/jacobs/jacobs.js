@@ -11,7 +11,7 @@ function helper (graph, source, target, visited) {
   newVisited.push(source)
   const successors = graph.successors(source)
   const doubts = successors.map((successor) => {
-    const confidence = graph.edge(source, successor)
+    const confidence = new Big(graph.edge(source, successor))
     const fromSuccessor = helper(
       graph,
       successor,

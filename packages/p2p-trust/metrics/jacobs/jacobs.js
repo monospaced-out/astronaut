@@ -1,4 +1,4 @@
-const Big = require('../../big')
+const Big = require('big.js')
 
 function helper (graph, source, target, visited) {
   if (source === target) {

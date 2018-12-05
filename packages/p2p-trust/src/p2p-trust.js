@@ -1,22 +1,37 @@
-const jacobs = require('../algorithms/jacobs/jacobs')
+const jacobs = require('../metrics/jacobs/jacobs')
+const Graph = require('@dagrejs/graphlib').Graph
+const Big = require('big.js')
 
-const algorithms = {
+const metrics = {
   jacobs
 }
 
 class P2PTrust {
   constructor (config = {}) {
-    const algorithm = config.algorithm || 'jacobs'
-    if (typeof algorithm === 'string') {
-      this.algorithm = algorithms[algorithm]
+    const metric = config.metric || 'jacobs'
+    if (typeof metric === 'string') {
+      this.metric = metrics[metric]
     } else {
-      this.algorithm = algorithm
+      this.metric = metric
     }
+    this.graph = new Graph()
     this.config = config
   }
 
-  getTrust (graph, source, target) {
-    return this.algorithm(graph, source, target, this.config)
+  setLink (from, to, confidence) {
+    this.graph.setEdge(from, to, new Big(confidence))
+  }
+
+  getLink (from, to) {
+    return this.graph.edge(from, to)
+  }
+
+  removeLink (from, to) {
+    this.graph.removeEdge(from, to)
+  }
+
+  getDegree (source, target) {
+    return this.metric(this.graph, source, target, this.config)
   }
 }
 

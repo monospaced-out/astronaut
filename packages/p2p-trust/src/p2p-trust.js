@@ -17,19 +17,19 @@ class P2PTrust {
     this.config = config
   }
 
-  setLink (from, to, confidence) {
+  setTrustClaim (from, to, confidence) {
     this.graph.setEdge(from, to, confidence)
   }
 
-  getLink (from, to) {
+  getTrustClaim (from, to) {
     return this.graph.edge(from, to)
   }
 
-  removeLink (from, to) {
+  removeTrustClaim (from, to) {
     this.graph.removeEdge(from, to)
   }
 
-  getDegree (source, target) {
+  getTrust (source, target) {
     return this.metric(this.graph, source, target, this.config)
   }
 }

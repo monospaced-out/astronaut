@@ -11,8 +11,8 @@ describe('jacobs algorithm', function () {
       b
     */
     const p2pTrust = new P2PTrust()
-    p2pTrust.setLink('a', 'b', 0.5)
-    const trust = p2pTrust.getDegree('a', 'b')
+    p2pTrust.setTrustClaim('a', 'b', 0.5)
+    const trust = p2pTrust.getTrust('a', 'b')
     assert.strictEqual(trust.toString(), '0.5')
   })
 
@@ -25,9 +25,9 @@ describe('jacobs algorithm', function () {
       c
     */
     const p2pTrust = new P2PTrust()
-    p2pTrust.setLink('a', 'b', 0.5)
-    p2pTrust.setLink('b', 'c', 0.5)
-    const trust = p2pTrust.getDegree('a', 'c')
+    p2pTrust.setTrustClaim('a', 'b', 0.5)
+    p2pTrust.setTrustClaim('b', 'c', 0.5)
+    const trust = p2pTrust.getTrust('a', 'c')
     assert.strictEqual(trust.toString(), '0.25')
   })
 
@@ -40,11 +40,11 @@ describe('jacobs algorithm', function () {
         d
     */
     const p2pTrust = new P2PTrust()
-    p2pTrust.setLink('a', 'b', 0.5)
-    p2pTrust.setLink('a', 'c', 0.5)
-    p2pTrust.setLink('b', 'd', 0.5)
-    p2pTrust.setLink('c', 'd', 0.5)
-    const trust = p2pTrust.getDegree('a', 'd')
+    p2pTrust.setTrustClaim('a', 'b', 0.5)
+    p2pTrust.setTrustClaim('a', 'c', 0.5)
+    p2pTrust.setTrustClaim('b', 'd', 0.5)
+    p2pTrust.setTrustClaim('c', 'd', 0.5)
+    const trust = p2pTrust.getTrust('a', 'd')
     assert.strictEqual(trust.toString(), '0.4375')
   })
 
@@ -59,23 +59,23 @@ describe('jacobs algorithm', function () {
         e
     */
     const p2pTrust = new P2PTrust()
-    p2pTrust.setLink('a', 'b', 1)
-    p2pTrust.setLink('a', 'c', 1)
-    p2pTrust.setLink('b', 'd', 1)
-    p2pTrust.setLink('c', 'd', 1)
-    p2pTrust.setLink('d', 'e', 1)
-    const trust = p2pTrust.getDegree('a', 'e')
+    p2pTrust.setTrustClaim('a', 'b', 1)
+    p2pTrust.setTrustClaim('a', 'c', 1)
+    p2pTrust.setTrustClaim('b', 'd', 1)
+    p2pTrust.setTrustClaim('c', 'd', 1)
+    p2pTrust.setTrustClaim('d', 'e', 1)
+    const trust = p2pTrust.getTrust('a', 'e')
     assert.strictEqual(trust.toString(), '1')
   })
 
   it('should return 0 when there is no connecting path', async function () {
     const p2pTrust = new P2PTrust()
-    p2pTrust.setLink('a', 'b', 1)
-    p2pTrust.setLink('a', 'c', 1)
-    p2pTrust.setLink('b', 'd', 1)
-    p2pTrust.setLink('c', 'd', 1)
-    p2pTrust.setLink('d', 'e', 1)
-    const trust = p2pTrust.getDegree('a', 'f')
+    p2pTrust.setTrustClaim('a', 'b', 1)
+    p2pTrust.setTrustClaim('a', 'c', 1)
+    p2pTrust.setTrustClaim('b', 'd', 1)
+    p2pTrust.setTrustClaim('c', 'd', 1)
+    p2pTrust.setTrustClaim('d', 'e', 1)
+    const trust = p2pTrust.getTrust('a', 'f')
     assert.strictEqual(trust.toString(), '0')
   })
 
@@ -88,11 +88,11 @@ describe('jacobs algorithm', function () {
         d
     */
     const p2pTrust = new P2PTrust()
-    p2pTrust.setLink('a', 'b', 0.5)
-    p2pTrust.setLink('a', 'c', 0.5)
-    p2pTrust.setLink('b', 'd', 0.25)
-    p2pTrust.setLink('c', 'd', 0.25)
-    const trust = p2pTrust.getDegree('a', 'd')
+    p2pTrust.setTrustClaim('a', 'b', 0.5)
+    p2pTrust.setTrustClaim('a', 'c', 0.5)
+    p2pTrust.setTrustClaim('b', 'd', 0.25)
+    p2pTrust.setTrustClaim('c', 'd', 0.25)
+    const trust = p2pTrust.getTrust('a', 'd')
     assert.strictEqual(trust.toString(), '0.234375')
   })
 })

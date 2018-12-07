@@ -11,13 +11,12 @@ function helper (graph, source, target, visited) {
   }
   let newVisited = visited.slice(0) // clone array
   newVisited.push(source)
-  const successors = graph.successors(source)
-  const trustedPeers = successors.filter(s => graph.hasEdge(source, s, TRUST_EDGE))
-  const doubts = trustedPeers.map((successor) => {
-    const confidence = new Big(graph.edge(source, successor, TRUST_EDGE))
+  const trustClaims = graph.outEdges(source).filter(e => e.name === TRUST_EDGE)
+  const doubts = trustClaims.map((claim) => {
+    const confidence = new Big(graph.edge(claim.v, claim.w, TRUST_EDGE))
     const fromSuccessor = helper(
       graph,
-      successor,
+      claim.w,
       target,
       newVisited
     )

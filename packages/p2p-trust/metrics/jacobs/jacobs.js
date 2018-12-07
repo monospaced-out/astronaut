@@ -1,5 +1,7 @@
 const Big = require('big.js')
 
+const TRUST_EDGE = 'trust'
+
 function helper (graph, source, target, visited) {
   if (source === target) {
     return new Big(1)
@@ -10,8 +12,9 @@ function helper (graph, source, target, visited) {
   let newVisited = visited.slice(0) // clone array
   newVisited.push(source)
   const successors = graph.successors(source)
-  const doubts = successors.map((successor) => {
-    const confidence = new Big(graph.edge(source, successor))
+  const trustedPeers = successors.filter(s => graph.hasEdge(source, s, TRUST_EDGE))
+  const doubts = trustedPeers.map((successor) => {
+    const confidence = new Big(graph.edge(source, successor, TRUST_EDGE))
     const fromSuccessor = helper(
       graph,
       successor,

@@ -1,6 +1,8 @@
 const jacobs = require('../metrics/jacobs/jacobs')
 const Graph = require('@dagrejs/graphlib').Graph
 
+const TRUST_EDGE = 'trust'
+
 const metrics = {
   jacobs
 }
@@ -13,20 +15,20 @@ class P2PTrust {
     } else {
       this.metric = metric
     }
-    this.graph = new Graph()
+    this.graph = new Graph({ multigraph: true })
     this.config = config
   }
 
   setTrustClaim (from, to, confidence) {
-    this.graph.setEdge(from, to, confidence)
+    this.graph.setEdge(from, to, confidence, TRUST_EDGE)
   }
 
   getTrustClaim (from, to) {
-    return this.graph.edge(from, to)
+    return this.graph.edge(from, to, TRUST_EDGE)
   }
 
   removeTrustClaim (from, to) {
-    this.graph.removeEdge(from, to)
+    this.graph.removeEdge(from, to, TRUST_EDGE)
   }
 
   getTrust (source, target) {

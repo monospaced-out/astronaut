@@ -8,6 +8,19 @@ const metrics = {
   jacobs
 }
 
+function getClaims (graph, type, direction, a, b) {
+  const method = direction === 'in' ? 'inEdges' : 'outEdges'
+  return graph[method](a, b).filter(e => {
+    return e.name === type
+  }).map(e => {
+    return {
+      from: e.v,
+      to: e.w,
+      confidence: graph.edge(e.v, e.w, type)
+    }
+  })
+}
+
 class P2PTrust {
   constructor (config = {}) {
     const metric = config.metric || 'jacobs'
@@ -24,8 +37,12 @@ class P2PTrust {
     this.graph.setEdge(from, to, confidence, TRUST_EDGE)
   }
 
-  getTrustClaim (from, to) {
-    return this.graph.edge(from, to, TRUST_EDGE)
+  trustClaimsTo (to) {
+    return getClaims(this.graph, TRUST_EDGE, 'in', to)
+  }
+
+  trustClaimsFrom (from) {
+    return getClaims(this.graph, TRUST_EDGE, 'out', from)
   }
 
   removeTrustClaim (from, to) {
@@ -36,8 +53,12 @@ class P2PTrust {
     this.graph.setEdge(from, to, confidence, WARNING_EDGE)
   }
 
-  getWarningClaim (from, to) {
-    return this.graph.edge(from, to, WARNING_EDGE)
+  warningClaimsTo (to) {
+    return getClaims(this.graph, WARNING_EDGE, 'in', to)
+  }
+
+  warningClaimsFrom (from) {
+    return getClaims(this.graph, WARNING_EDGE, 'out', from)
   }
 
   removeWarningClaim (from, to) {

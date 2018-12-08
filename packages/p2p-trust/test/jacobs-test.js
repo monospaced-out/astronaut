@@ -100,18 +100,18 @@ describe('jacobs algorithm', function () {
     /*
       (* = warning claim)
         a
-       / \   <- 0.5
+       / \
       b   c
-       \ *   <- 0.25
+       \ *
         d
     */
     const p2pTrust = new P2PTrust()
     p2pTrust.setTrustClaim('a', 'b', 0.5)
     p2pTrust.setTrustClaim('a', 'c', 0.5)
     p2pTrust.setTrustClaim('b', 'd', 0.25)
-    p2pTrust.setWarningClaim('c', 'd', 0.25)
+    p2pTrust.setWarningClaim('c', 'd', 1)
     const trust = p2pTrust.getTrust('a', 'd')
-    assert.strictEqual(trust.toString(), '0.109375')
+    assert.strictEqual(trust.toString(), '0.0625')
   })
 
   it('should take direct warnings into account', async function () {
@@ -129,5 +129,22 @@ describe('jacobs algorithm', function () {
     p2pTrust.setWarningClaim('a', 'c', 0.5)
     const trust = p2pTrust.getTrust('a', 'c')
     assert.strictEqual(trust.toString(), '0.125')
+  })
+
+  it('should reset trust if 100% confident warning', async function () {
+    /*
+      (* = warning claim)
+        a
+       / *
+      b  *
+       \ *
+        c
+    */
+    const p2pTrust = new P2PTrust()
+    p2pTrust.setTrustClaim('a', 'b', 0.5)
+    p2pTrust.setTrustClaim('b', 'c', 0.5)
+    p2pTrust.setWarningClaim('a', 'c', 1)
+    const trust = p2pTrust.getTrust('a', 'c')
+    assert.strictEqual(trust.toString(), '0')
   })
 })

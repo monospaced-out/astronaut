@@ -95,4 +95,39 @@ describe('jacobs algorithm', function () {
     const trust = p2pTrust.getTrust('a', 'd')
     assert.strictEqual(trust.toString(), '0.234375')
   })
+
+  it('should take indirect warnings into account', async function () {
+    /*
+      (* = warning claim)
+        a
+       / \   <- 0.5
+      b   c
+       \ *   <- 0.25
+        d
+    */
+    const p2pTrust = new P2PTrust()
+    p2pTrust.setTrustClaim('a', 'b', 0.5)
+    p2pTrust.setTrustClaim('a', 'c', 0.5)
+    p2pTrust.setTrustClaim('b', 'd', 0.25)
+    p2pTrust.setWarningClaim('c', 'd', 0.25)
+    const trust = p2pTrust.getTrust('a', 'd')
+    assert.strictEqual(trust.toString(), '0.109375')
+  })
+
+  it('should take direct warnings into account', async function () {
+    /*
+      (* = warning claim; all edges 0.5 confidence)
+        a
+       / *
+      b  *
+       \ *
+        c
+    */
+    const p2pTrust = new P2PTrust()
+    p2pTrust.setTrustClaim('a', 'b', 0.5)
+    p2pTrust.setTrustClaim('b', 'c', 0.5)
+    p2pTrust.setWarningClaim('a', 'c', 0.5)
+    const trust = p2pTrust.getTrust('a', 'c')
+    assert.strictEqual(trust.toString(), '0.125')
+  })
 })

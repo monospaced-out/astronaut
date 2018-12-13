@@ -7,6 +7,6 @@ An ecosystem of peer-to-peer trust
 
 ## Projects
 
-### Ki
+### p2p-trust
 
-[ki](packages/ki) is a self-sovereign identity solution built on IPFS and orbit-db.
+[p2p-trust](packages/p2p-trust)

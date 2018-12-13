@@ -2,7 +2,6 @@ const jacobs = require('../metrics/jacobs/jacobs')
 const Graph = require('@dagrejs/graphlib').Graph
 
 const TRUST_EDGE = 'trust'
-const WARNING_EDGE = 'warning'
 
 const metrics = {
   jacobs
@@ -47,22 +46,6 @@ class P2PTrust {
 
   removeTrustClaim (from, to) {
     this.graph.removeEdge(from, to, TRUST_EDGE)
-  }
-
-  setWarningClaim (from, to, confidence) {
-    this.graph.setEdge(from, to, confidence, WARNING_EDGE)
-  }
-
-  warningClaimsTo (to) {
-    return getClaims(this.graph, WARNING_EDGE, 'in', to)
-  }
-
-  warningClaimsFrom (from) {
-    return getClaims(this.graph, WARNING_EDGE, 'out', from)
-  }
-
-  removeWarningClaim (from, to) {
-    this.graph.removeEdge(from, to, WARNING_EDGE)
   }
 
   getTrust (source, target) {

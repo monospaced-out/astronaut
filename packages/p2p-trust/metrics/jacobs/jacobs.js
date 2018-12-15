@@ -6,10 +6,10 @@ const ONE = new Big(1)
 
 function helper (graph, source, target, claimType, visited) {
   if (source === target) {
-    return { confidence: ZERO, value: 1 }
+    return { confidence: ZERO, value: ONE }
   }
   if (visited.includes(source)) {
-    return { confidence: ZERO, value: 1 }
+    return { confidence: ZERO, value: ONE }
   }
   let newVisited = visited.slice(0) // clone array
   newVisited.push(source)
@@ -47,7 +47,7 @@ function helper (graph, source, target, claimType, visited) {
     return acc.plus(confidence)
   }, ZERO)
   const valueWeightedAverage = confidenceSum.eq(ZERO)
-    ? ZERO
+    ? ONE
     : valueWeightedSum.div(confidenceSum)
   return { confidence, value: valueWeightedAverage }
 }

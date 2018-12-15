@@ -13,7 +13,7 @@ function helper (graph, source, target, claimType, visited) {
   }
   let newVisited = visited.slice(0) // clone array
   newVisited.push(source)
-  const claims = graph.outEdges(source)
+  const claims = graph.outEdges(source) || []
   const trustClaims = claims.filter(e => e.name === TRUST_EDGE)
   const fromPeers = trustClaims.map((claim) => {
     const confidence = new Big(graph.edge(claim.v, claim.w, TRUST_EDGE).confidence)

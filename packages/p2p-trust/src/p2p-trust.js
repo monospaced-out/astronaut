@@ -36,6 +36,7 @@ class P2PTrust {
   }
 
   setTrustClaim (from, to, confidence) {
+    confidence = confidence || this.config.defaultConfidence
     this.graph.setEdge(from, to, { confidence, value: 1 }, TRUST_EDGE)
   }
 
@@ -56,7 +57,7 @@ class P2PTrust {
     return confidence
   }
 
-  setClaim (from, to, claimType, value) {
+  setClaim (from, to, claimType, value = 1) {
     this.graph.setEdge(from, to, { confidence: 1, value }, customClaim(claimType))
   }
 

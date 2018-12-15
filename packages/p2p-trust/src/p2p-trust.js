@@ -2,6 +2,9 @@ const jacobs = require('../metrics/jacobs/jacobs')
 const Graph = require('@dagrejs/graphlib').Graph
 
 const TRUST_EDGE = 'trust'
+const customClaim = (claimType) => {
+  return `claim:${claimType}`
+}
 
 const metrics = {
   jacobs
@@ -33,7 +36,7 @@ class P2PTrust {
   }
 
   setTrustClaim (from, to, confidence) {
-    this.graph.setEdge(from, to, confidence, TRUST_EDGE)
+    this.graph.setEdge(from, to, { confidence, value: 1 }, TRUST_EDGE)
   }
 
   trustClaimsTo (to) {
@@ -48,8 +51,29 @@ class P2PTrust {
     this.graph.removeEdge(from, to, TRUST_EDGE)
   }
 
-  getTrust (source, target) {
-    return this.metric(this.graph, source, target, this.config)
+  peerTrust (source, target) {
+    const { confidence } = this.metric(this.graph, source, target, TRUST_EDGE, this.config)
+    return confidence
+  }
+
+  setClaim (from, to, claimType, value) {
+    this.graph.setEdge(from, to, { confidence: 1, value }, customClaim(claimType))
+  }
+
+  claimsTo (to, claimType) {
+    return getClaims(this.graph, customClaim(claimType), 'in', to)
+  }
+
+  claimsFrom (from, claimType) {
+    return getClaims(this.graph, customClaim(claimType), 'out', from)
+  }
+
+  removeClaim (from, to, claimType) {
+    this.graph.removeEdge(from, to, customClaim(claimType))
+  }
+
+  claimTrust (source, target, claimType) {
+    return this.metric(this.graph, source, target, customClaim(claimType), this.config)
   }
 }
 

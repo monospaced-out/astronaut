@@ -52,8 +52,8 @@ class P2PTrust {
     this.graph.removeEdge(from, to, TRUST_EDGE)
   }
 
-  peerTrust (source, target) {
-    const { confidence } = this.metric(this.graph, source, target, TRUST_EDGE, this.config)
+  peerTrust (from, to) {
+    const { confidence } = this.metric(this.graph, from, to, TRUST_EDGE, this.config)
     return confidence
   }
 
@@ -73,8 +73,8 @@ class P2PTrust {
     this.graph.removeEdge(from, to, customClaim(claimType))
   }
 
-  claimTrust (source, target, claimType) {
-    return this.metric(this.graph, source, target, customClaim(claimType), this.config)
+  claimTrust (from, to, claimType) {
+    return this.metric(this.graph, from, to, customClaim(claimType), this.config)
   }
 }
 

@@ -157,5 +157,18 @@ describe('jacobs algorithm', function () {
       assert.strictEqual(confidence.toString(), '0.875')
       assert.strictEqual(value.toString(), '0.78')
     })
+
+    it('should handle nonexistent paths', async function () {
+      /*
+        a
+        |
+        b
+      */
+      const p2pTrust = new P2PTrust()
+      p2pTrust.setTrustClaim('a', 'b', 0.5)
+      const { confidence, value } = p2pTrust.claimTrust('a', 'c', 'hasSuperpowers')
+      assert.strictEqual(confidence.toString(), '0')
+      assert.strictEqual(value.toString(), '1')
+    })
   })
 })

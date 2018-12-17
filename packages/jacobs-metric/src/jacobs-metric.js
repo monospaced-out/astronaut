@@ -4,19 +4,17 @@ const TRUST_CLAIM = 'trust'
 const ZERO = new Big(0)
 const ONE = new Big(1)
 
-function helper (getClaims, source, target, claimType, visited) {
-  // if (source === target) {
-  //   return { confidence: ZERO, value: ONE }
-  // }
-  if (visited.includes(source)) {
+function helper (getClaims, caller, current, target, claimType, visited) {
+  if (visited.includes(current)) {
     return { confidence: ZERO, value: ONE }
   }
   let newVisited = visited.slice(0) // clone array
-  newVisited.push(source)
-  const trustClaims = getClaims(source, TRUST_CLAIM)
+  newVisited.push(current)
+  const trustClaims = getClaims(caller, current, TRUST_CLAIM)
   const fromPeers = trustClaims.map(({ to, confidence }) => {
     const { confidence: peerConfidence, value } = helper(
       getClaims,
+      current,
       to,
       target,
       claimType,
@@ -24,7 +22,7 @@ function helper (getClaims, source, target, claimType, visited) {
     )
     return { confidence: peerConfidence.times(new Big(confidence)), value }
   })
-  const fromSelf = getClaims(source, claimType).find(({ to }) => to === target)
+  const fromSelf = getClaims(caller, current, claimType).find(({ to }) => to === target)
   const repClaims = fromSelf
     ? fromPeers.concat({
       value: new Big(fromSelf.value),
@@ -51,7 +49,7 @@ function helper (getClaims, source, target, claimType, visited) {
 }
 
 function jacobs (getClaims, source, target, claimType) {
-  return helper(getClaims, source, target, claimType, [])
+  return helper(getClaims, null, source, target, claimType, [])
 }
 
 module.exports = jacobs

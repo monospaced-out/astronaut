@@ -1,0 +1,24 @@
+{
+  "name": "@projectaspen/street",
+  "version": "0.1.0",
+  "description": "",
+  "main": "src/street.js",
+  "scripts": {
+    "test": "npx mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/projectaspen/aspen.git"
+  },
+  "keywords": [
+    "web of trust",
+    "peer to peer",
+    "p2p"
+  ],
+  "author": "Tyler Yasaka",
+  "license": "CC0-1.0",
+  "bugs": {
+    "url": "https://github.com/projectaspen/aspen/issues"
+  },
+  "homepage": "https://github.com/projectaspen/aspen#readme"
+}

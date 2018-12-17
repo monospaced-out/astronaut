@@ -1,32 +1,30 @@
 const Big = require('big.js')
 
-const TRUST_EDGE = 'trust'
+const TRUST_CLAIM = 'trust'
 const ZERO = new Big(0)
 const ONE = new Big(1)
 
-function helper (graph, source, target, claimType, visited) {
-  if (source === target) {
-    return { confidence: ZERO, value: ONE }
-  }
+function helper (getClaims, source, target, claimType, visited) {
+  // if (source === target) {
+  //   return { confidence: ZERO, value: ONE }
+  // }
   if (visited.includes(source)) {
     return { confidence: ZERO, value: ONE }
   }
   let newVisited = visited.slice(0) // clone array
   newVisited.push(source)
-  const claims = graph.outEdges(source) || []
-  const trustClaims = claims.filter(e => e.name === TRUST_EDGE)
-  const fromPeers = trustClaims.map((claim) => {
-    const confidence = new Big(graph.edge(claim.v, claim.w, TRUST_EDGE).confidence)
+  const trustClaims = getClaims(source, TRUST_CLAIM)
+  const fromPeers = trustClaims.map(({ to, confidence }) => {
     const { confidence: peerConfidence, value } = helper(
-      graph,
-      claim.w,
+      getClaims,
+      to,
       target,
       claimType,
       newVisited
     )
-    return { confidence: peerConfidence.times(confidence), value }
+    return { confidence: peerConfidence.times(new Big(confidence)), value }
   })
-  const fromSelf = graph.edge(source, target, claimType)
+  const fromSelf = getClaims(source, claimType).find(({ to }) => to === target)
   const repClaims = fromSelf
     ? fromPeers.concat({
       value: new Big(fromSelf.value),
@@ -52,8 +50,8 @@ function helper (graph, source, target, claimType, visited) {
   return { confidence, value: valueWeightedAverage }
 }
 
-function jacobs (graph, source, target, claimType, config) {
-  return helper(graph, source, target, claimType, [])
+function jacobs (getClaims, source, target, claimType) {
+  return helper(getClaims, source, target, claimType, [])
 }
 
 module.exports = jacobs

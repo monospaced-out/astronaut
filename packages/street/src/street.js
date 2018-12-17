@@ -67,7 +67,9 @@ class Street {
             return
           }
           const tc = this.trustClaims
-          const startTime = tc[caller] && tc[caller][from] && tc[caller][from].time
+          const startTime = caller
+            ? tc[caller] && tc[caller][from] && tc[caller][from].time
+            : 0 // if there is no caller, then this is a self-issued claim
           if (typeof startTime !== 'number') {
             return
           }

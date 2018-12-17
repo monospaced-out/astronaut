@@ -1,7 +1,7 @@
 const P2PTrust = require('../../p2p-trust/src/p2p-trust')
 const jacobsMetric = require('../../jacobs-metric/src/jacobs-metric')
 
-const RATING_CLAIM = 'rating'
+const CRED_CLAIM = 'cred'
 const TRUST_CLAIM = 'trust'
 
 class Street {
@@ -56,7 +56,7 @@ class Street {
             return { value: 1, confidence, to: t }
           }
         }).filter(c => c)
-      } else if (claimType === RATING_CLAIM) {
+      } else if (claimType === CRED_CLAIM) {
         const ratingClaims = this.ratingClaims[from]
         if (!ratingClaims) {
           return []
@@ -91,7 +91,7 @@ class Street {
       }
     }
     const p2pTrust = new P2PTrust({ getClaims, metric: jacobsMetric })
-    return p2pTrust.claimConfidence(from, to, RATING_CLAIM)
+    return p2pTrust.claimConfidence(from, to, CRED_CLAIM)
   }
 }
 

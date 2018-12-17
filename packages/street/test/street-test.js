@@ -33,5 +33,19 @@ describe('street', function () {
       assert.strictEqual(confidence.toString(), '0.5')
       assert.strictEqual(value.toString(), '1')
     })
+
+    it('should handle self-issued cred', async function () {
+      const clock = new Clock()
+      const street = new Street({
+        limit: 1,
+        getTime: clock.time.bind(clock),
+        defaultConfidence: 0.5
+      })
+      clock.tick()
+      street.addCred('a', 'b', clock.time())
+      const { confidence, value } = street.cred('a', 'b')
+      assert.strictEqual(confidence.toString(), '1')
+      assert.strictEqual(value.toString(), '1')
+    })
   })
 })

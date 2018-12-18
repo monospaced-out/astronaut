@@ -5,6 +5,7 @@ const jacobsMetric = require('../../jacobs-metric/src/jacobs-metric')
 const CRED_CLAIM = 'cred'
 const TRUST_CLAIM = 'trust'
 const ZERO = new Big(0)
+const ONE = new Big(1)
 
 class Street {
   constructor ({ limit, defaultConfidence, startTime }) {
@@ -12,7 +13,7 @@ class Street {
     this.trustClaims = {}
     this.ratingClaims = {}
     this.defaultConfidence = defaultConfidence
-    this.startTime = startTime
+    this.startTime = new Big(startTime)
   }
 
   setTrust (from, to, confidence) {
@@ -31,7 +32,7 @@ class Street {
   addCred (from, to, time, isNegative = false) {
     const ratingClaims = Object.assign({}, this.ratingClaims[from])
     const list = ratingClaims[to] ? ratingClaims[to].slice(0) : []
-    list.push({ time, isNegative })
+    list.push({ time: new Big(time), isNegative })
     ratingClaims[to] = list
     this.ratingClaims[from] = ratingClaims
   }
@@ -41,6 +42,8 @@ class Street {
   }
 
   cred (from, to, currentTime) {
+    currentTime = new Big(currentTime)
+
     const getClaims = (from, claimType) => {
       if (claimType === TRUST_CLAIM) {
         const trustClaims = this.trustClaims[from]
@@ -66,21 +69,22 @@ class Street {
             return
           }
           const { startTime } = this
-          const timeDelta = currentTime - startTime
+          const timeDelta = currentTime.minus(startTime)
           const validatedList = list.filter(({ time }) => {
-            return (time > startTime) && (time <= currentTime)
+            return (time.gt(startTime)) && (time.lte(currentTime))
           })
-          if (!validatedList.length) {
+          const votes = new Big(validatedList.length)
+          if (!votes) {
             return
           }
-          if ((validatedList.length / timeDelta) > this.limit) {
+          if ((votes.div(timeDelta)).gt(this.limit)) {
             return
           }
           const cumulativeRating = validatedList.reduce((acc, { isNegative }) => {
-            return isNegative ? acc - 1 : acc + 1
-          }, 0)
+            return isNegative ? acc.minus(ONE) : acc.plus(ONE)
+          }, ZERO)
           const value = {
-            votes: new Big(validatedList.length),
+            votes,
             value: new Big(cumulativeRating)
           }
           return { value, confidence: 1, to: t }

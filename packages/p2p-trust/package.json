@@ -1,5 +1,5 @@
 {
-  "name": "p2p-trust",
+  "name": "@projectaspen/p2p-trust",
   "version": "0.1.0",
   "description": "",
   "main": "src/p2p-trust.js",

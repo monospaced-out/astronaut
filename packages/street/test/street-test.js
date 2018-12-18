@@ -65,5 +65,23 @@ describe('street', function () {
       assert.strictEqual(confidence.toString(), '0.625')
       assert.strictEqual(value.toString(), '1.55555555555555555555')
     })
+
+    it('should only use cred issued after a peer has been trusted', async function () {
+      const clock = new Clock()
+      const street = new Street({
+        limit: 1,
+        defaultConfidence: 0.5
+      })
+      street.addCred('b', 'c', clock.time()) // this one should be ignored
+      clock.tick()
+      street.setTrust('a', 'b', clock.time())
+      clock.tick()
+      street.addCred('b', 'c', clock.time())
+      clock.tick()
+      street.addCred('b', 'c', clock.time())
+      const { confidence, value } = street.cred('a', 'c', clock.time())
+      assert.strictEqual(confidence.toString(), '0.5')
+      assert.strictEqual(value.toString(), '2')
+    })
   })
 })

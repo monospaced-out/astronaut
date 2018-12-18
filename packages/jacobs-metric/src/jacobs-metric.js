@@ -1,31 +1,37 @@
 const Big = require('big.js')
 
 const TRUST_CLAIM = 'trust'
-const ZERO = new Big(0)
 const ONE = new Big(1)
 
-function helper (getClaims, caller, current, target, claimType, visited) {
+function helper (getClaims, getValue, caller, current, target, claimType, visited) {
   if (visited.includes(current)) {
-    return { confidence: ZERO, value: ONE }
+    return
   }
   let newVisited = visited.slice(0) // clone array
   newVisited.push(current)
   const trustClaims = getClaims(caller, current, TRUST_CLAIM)
   const fromPeers = trustClaims.map(({ to, confidence }) => {
-    const { confidence: peerConfidence, value } = helper(
+    const fromPeer = helper(
       getClaims,
+      getValue,
       current,
       to,
       target,
       claimType,
       newVisited
     )
-    return { confidence: peerConfidence.times(new Big(confidence)), value }
-  })
+    if (!fromPeer) {
+      return
+    }
+    return {
+      confidence: fromPeer.confidence.times(new Big(confidence)),
+      value: fromPeer.value
+    }
+  }).filter(c => c) // remove undefined values
   const fromSelf = getClaims(caller, current, claimType).find(({ to }) => to === target)
   const repClaims = fromSelf
     ? fromPeers.concat({
-      value: new Big(fromSelf.value),
+      value: fromSelf.value,
       confidence: new Big(fromSelf.confidence)
     })
     : fromPeers
@@ -36,20 +42,12 @@ function helper (getClaims, caller, current, target, claimType, visited) {
     return acc.times(cur)
   }, ONE)
   const confidence = ONE.minus(totalDoubt)
-  const valueWeightedSum = repClaims.reduce((acc, { confidence, value }) => {
-    return acc.plus(confidence.times(value))
-  }, ZERO)
-  const confidenceSum = repClaims.reduce((acc, { confidence }) => {
-    return acc.plus(confidence)
-  }, ZERO)
-  const valueWeightedAverage = confidenceSum.eq(ZERO)
-    ? ONE
-    : valueWeightedSum.div(confidenceSum)
-  return { confidence, value: valueWeightedAverage }
+  const value = getValue(repClaims)
+  return { confidence, value }
 }
 
-function jacobs (getClaims, source, target, claimType) {
-  return helper(getClaims, null, source, target, claimType, [])
+function jacobs (getClaims, getValue, source, target, claimType) {
+  return helper(getClaims, getValue, null, source, target, claimType, [])
 }
 
 module.exports = jacobs

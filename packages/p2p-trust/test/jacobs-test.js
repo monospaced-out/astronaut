@@ -1,10 +1,14 @@
 /* globals describe, it, beforeEach */
 
+const Big = require('big.js')
 const P2PTrust = require('../src/p2p-trust')
 const jacobsMetric = require('../../jacobs-metric/src/jacobs-metric')
 const { Graph } = require('@dagrejs/graphlib')
 const assert = require('assert')
+
 const TRUST_CLAIM = 'trust'
+const ZERO = new Big(0)
+const ONE = new Big(1)
 
 let p2pTrust, setClaim, setTrustClaim
 
@@ -19,13 +23,24 @@ describe('jacobs algorithm', function () {
         return { value, confidence, to: e.w }
       })
     }
+    const getValue = (claims) => {
+      const valueWeightedSum = claims.reduce((acc, { confidence, value }) => {
+        return acc.plus(confidence.times(new Big(value)))
+      }, ZERO)
+      const confidenceSum = claims.reduce((acc, { confidence }) => {
+        return acc.plus(confidence)
+      }, ZERO)
+      return confidenceSum.eq(ZERO)
+        ? ONE
+        : valueWeightedSum.div(confidenceSum)
+    }
     setClaim = (from, to, claimType, value, confidence = 1) => {
       graph.setEdge(from, to, { value, confidence }, claimType)
     }
     setTrustClaim = (from, to, confidence) => {
       setClaim(from, to, TRUST_CLAIM, 1, confidence)
     }
-    p2pTrust = new P2PTrust({ getClaims, metric: jacobsMetric })
+    p2pTrust = new P2PTrust({ getClaims, getValue, metric: jacobsMetric })
   })
 
   describe('peerConfidence', function () {

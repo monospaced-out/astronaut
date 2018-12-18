@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/projectaspen/aspen#readme",
   "devDependencies": {
-    "@dagrejs/graphlib": "^2.1.4"
+    "@dagrejs/graphlib": "^2.1.4",
+    "big.js": "^5.2.2"
   }
 }

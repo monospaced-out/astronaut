@@ -80,7 +80,7 @@ class Street {
           if (!validatedList.length) {
             return
           }
-          if ((timeDelta / validatedList.length) > this.limit) {
+          if ((validatedList.length / timeDelta) > this.limit) {
             return
           }
           const cumulativeRating = validatedList.reduce((acc, { isNegative }) => {

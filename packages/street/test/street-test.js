@@ -23,13 +23,12 @@ describe('street', function () {
       const clock = new Clock()
       const street = new Street({
         limit: 1,
-        getTime: clock.time.bind(clock),
         defaultConfidence: 0.5
       })
       street.setTrust('a', 'b', clock.time())
       clock.tick()
       street.addCred('b', 'c', clock.time())
-      const { confidence, value } = street.cred('a', 'c')
+      const { confidence, value } = street.cred('a', 'c', clock.time())
       assert.strictEqual(confidence.toString(), '0.5')
       assert.strictEqual(value.toString(), '1')
     })
@@ -38,12 +37,11 @@ describe('street', function () {
       const clock = new Clock()
       const street = new Street({
         limit: 1,
-        getTime: clock.time.bind(clock),
         defaultConfidence: 0.5
       })
       clock.tick()
       street.addCred('a', 'b', clock.time())
-      const { confidence, value } = street.cred('a', 'b')
+      const { confidence, value } = street.cred('a', 'b', clock.time())
       assert.strictEqual(confidence.toString(), '1')
       assert.strictEqual(value.toString(), '1')
     })
@@ -52,7 +50,6 @@ describe('street', function () {
       const clock = new Clock()
       const street = new Street({
         limit: 1,
-        getTime: clock.time.bind(clock),
         defaultConfidence: 0.5
       })
       street.setTrust('a', 'b', clock.time())
@@ -64,7 +61,7 @@ describe('street', function () {
       street.addCred('d', 'e', clock.time())
       clock.tick()
       street.addCred('d', 'e', clock.time())
-      const { confidence, value } = street.cred('a', 'e')
+      const { confidence, value } = street.cred('a', 'e', clock.time())
       assert.strictEqual(confidence.toString(), '0.625')
       assert.strictEqual(value.toString(), '1.55555555555555555555')
     })

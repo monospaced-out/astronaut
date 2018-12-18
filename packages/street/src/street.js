@@ -5,9 +5,8 @@ const CRED_CLAIM = 'cred'
 const TRUST_CLAIM = 'trust'
 
 class Street {
-  constructor ({ limit, getTime, defaultConfidence }) {
+  constructor ({ limit, defaultConfidence }) {
     this.limit = limit
-    this.getTime = getTime || (() => { new Date().getTime() })
     this.trustClaims = {}
     this.ratingClaims = {}
     this.defaultConfidence = defaultConfidence
@@ -38,8 +37,7 @@ class Street {
     return this.addCred(from, to, time, true)
   }
 
-  cred (from, to) {
-    const currentTime = this.getTime()
+  cred (from, to, currentTime) {
     const getClaims = (caller, from, claimType) => {
       if (claimType === TRUST_CLAIM) {
         const trustClaims = this.trustClaims[from]

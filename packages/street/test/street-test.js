@@ -23,9 +23,10 @@ describe('street', function () {
       const clock = new Clock()
       const street = new Street({
         limit: 1,
-        defaultConfidence: 0.5
+        defaultConfidence: 0.5,
+        startTime: clock.time()
       })
-      street.setTrust('a', 'b', clock.time())
+      street.setTrust('a', 'b')
       clock.tick()
       street.addCred('b', 'c', clock.time())
       const { confidence, votes, value } = street.cred('a', 'c', clock.time())
@@ -38,7 +39,8 @@ describe('street', function () {
       const clock = new Clock()
       const street = new Street({
         limit: 1,
-        defaultConfidence: 0.5
+        defaultConfidence: 0.5,
+        startTime: clock.time()
       })
       clock.tick()
       street.addCred('a', 'b', clock.time())
@@ -52,12 +54,13 @@ describe('street', function () {
       const clock = new Clock()
       const street = new Street({
         limit: 1,
-        defaultConfidence: 0.5
+        defaultConfidence: 0.5,
+        startTime: clock.time()
       })
-      street.setTrust('a', 'b', clock.time())
-      street.setTrust('a', 'c', clock.time())
-      street.setTrust('b', 'd', clock.time())
-      street.setTrust('c', 'd', clock.time())
+      street.setTrust('a', 'b')
+      street.setTrust('a', 'c')
+      street.setTrust('b', 'd')
+      street.setTrust('c', 'd')
       clock.tick()
       street.addCred('b', 'e', clock.time())
       street.addCred('d', 'e', clock.time())
@@ -73,11 +76,12 @@ describe('street', function () {
       const clock = new Clock()
       const street = new Street({
         limit: 1,
-        defaultConfidence: 0.5
+        defaultConfidence: 0.5,
+        startTime: clock.time()
       })
       street.addCred('b', 'c', clock.time()) // this one should be ignored
       clock.tick()
-      street.setTrust('a', 'b', clock.time())
+      street.setTrust('a', 'b')
       clock.tick()
       street.addCred('b', 'c', clock.time())
       clock.tick()

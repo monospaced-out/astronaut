@@ -7,17 +7,18 @@ const TRUST_CLAIM = 'trust'
 const ZERO = new Big(0)
 
 class Street {
-  constructor ({ limit, defaultConfidence }) {
+  constructor ({ limit, defaultConfidence, startTime }) {
     this.limit = limit
     this.trustClaims = {}
     this.ratingClaims = {}
     this.defaultConfidence = defaultConfidence
+    this.startTime = startTime
   }
 
-  setTrust (from, to, time, confidence) {
+  setTrust (from, to, confidence) {
     const trustClaims = Object.assign({}, this.trustClaims[from])
     confidence = confidence || this.defaultConfidence
-    trustClaims[to] = { confidence, time }
+    trustClaims[to] = { confidence }
     this.trustClaims[from] = trustClaims
   }
 
@@ -40,7 +41,7 @@ class Street {
   }
 
   cred (from, to, currentTime) {
-    const getClaims = (caller, from, claimType) => {
+    const getClaims = (from, claimType) => {
       if (claimType === TRUST_CLAIM) {
         const trustClaims = this.trustClaims[from]
         if (!trustClaims) {
@@ -51,10 +52,8 @@ class Street {
           if (!claim) {
             return
           }
-          const { confidence, time } = claim
-          if (time <= currentTime) {
-            return { value: null, confidence, to: t }
-          }
+          const { confidence } = claim
+          return { value: null, confidence, to: t }
         }).filter(c => c)
       } else if (claimType === CRED_CLAIM) {
         const ratingClaims = this.ratingClaims[from]
@@ -66,13 +65,7 @@ class Street {
           if (!list) {
             return
           }
-          const tc = this.trustClaims
-          const startTime = caller
-            ? tc[caller] && tc[caller][from] && tc[caller][from].time
-            : 0 // if there is no caller, then this is a self-issued claim
-          if (typeof startTime !== 'number') {
-            return
-          }
+          const { startTime } = this
           const timeDelta = currentTime - startTime
           const validatedList = list.filter(({ time }) => {
             return (time > startTime) && (time <= currentTime)

@@ -15,7 +15,7 @@ let p2pTrust, setClaim, setTrustClaim
 describe('jacobs algorithm', function () {
   beforeEach(() => {
     const graph = new Graph({ multigraph: true })
-    const getClaims = (caller, from, claimType) => {
+    const getClaims = (from, claimType) => {
       const edges = graph.outEdges(from)
       const byType = edges.filter(e => e.name === claimType)
       return byType.map(e => {

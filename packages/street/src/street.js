@@ -132,7 +132,8 @@ class Street {
     }
 
     const p2pTrust = new P2PTrust({ getClaims, getValue, metric: jacobsMetric })
-    return p2pTrust.claimConfidence(from, to, CRED_CLAIM)
+    const { confidence, value: { votes, value } } = p2pTrust.claimConfidence(from, to, CRED_CLAIM)
+    return { confidence, votes, value }
   }
 }
 

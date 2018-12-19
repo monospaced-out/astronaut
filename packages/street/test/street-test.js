@@ -19,22 +19,22 @@ class Clock {
 
 describe('street', function () {
   describe('cred', function () {
-    let clock, street
+    let clock, street, startTime
 
     beforeEach(() => {
       clock = new Clock()
       street = new Street({
         limit: 1,
-        defaultConfidence: 0.5,
-        startTime: clock.time()
+        defaultConfidence: 0.5
       })
+      startTime = clock.time()
     })
 
     it('should handle single cred', async function () {
       street.setTrust('a', 'b')
       clock.tick()
       street.addCred('b', 'c', clock.time())
-      const { confidence, votes, value } = street.cred('a', 'c', clock.time())
+      const { confidence, votes, value } = street.cred('a', 'c', startTime, clock.time())
       assert.strictEqual(confidence.toString(), '0.5')
       assert.strictEqual(votes.toString(), '1')
       assert.strictEqual(value.toString(), '1')
@@ -43,7 +43,7 @@ describe('street', function () {
     it('should handle self-issued cred', async function () {
       clock.tick()
       street.addCred('a', 'b', clock.time())
-      const { confidence, votes, value } = street.cred('a', 'b', clock.time())
+      const { confidence, votes, value } = street.cred('a', 'b', startTime, clock.time())
       assert.strictEqual(confidence.toString(), '1')
       assert.strictEqual(votes.toString(), '1')
       assert.strictEqual(value.toString(), '1')
@@ -59,7 +59,7 @@ describe('street', function () {
       street.addCred('d', 'e', clock.time())
       clock.tick()
       street.addCred('d', 'e', clock.time())
-      const { confidence, votes, value } = street.cred('a', 'e', clock.time())
+      const { confidence, votes, value } = street.cred('a', 'e', startTime, clock.time())
       assert.strictEqual(confidence.toString(), '0.625')
       assert.strictEqual(votes.toString(), '1.55555555555555555555')
       assert.strictEqual(value.toString(), '1.71428571428571428571')
@@ -73,7 +73,7 @@ describe('street', function () {
       street.addCred('b', 'c', clock.time())
       clock.tick()
       street.addCred('b', 'c', clock.time())
-      const { confidence, votes, value } = street.cred('a', 'c', clock.time())
+      const { confidence, votes, value } = street.cred('a', 'c', startTime, clock.time())
       assert.strictEqual(confidence.toString(), '0.5')
       assert.strictEqual(votes.toString(), '2')
       assert.strictEqual(value.toString(), '2')

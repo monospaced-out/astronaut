@@ -8,12 +8,11 @@ const ZERO = new Big(0)
 const ONE = new Big(1)
 
 class Street {
-  constructor ({ limit, defaultConfidence, startTime }) {
+  constructor ({ limit, defaultConfidence }) {
     this.limit = limit
     this.trustClaims = {}
     this.ratingClaims = {}
     this.defaultConfidence = defaultConfidence
-    this.startTime = new Big(startTime)
   }
 
   setTrust (from, to, confidence) {
@@ -41,7 +40,8 @@ class Street {
     return this.addCred(from, to, time, true)
   }
 
-  cred (from, to, currentTime) {
+  cred (from, to, startTime, currentTime) {
+    startTime = new Big(startTime)
     currentTime = new Big(currentTime)
 
     const getClaims = (from, claimType) => {
@@ -68,7 +68,6 @@ class Street {
           if (!list) {
             return
           }
-          const { startTime } = this
           const timeDelta = currentTime.minus(startTime)
           const validatedList = list.filter(({ time }) => {
             return (time.gt(startTime)) && (time.lte(currentTime))

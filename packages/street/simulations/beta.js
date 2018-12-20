@@ -23,22 +23,18 @@ class Clock {
 const n = new Big(50) // total number of nodes
 const k = new Big(4) // number of connections per node
 const m = new Big(0.5) // probability of a node being malicious
-const time = 100
-const confidence = new Big(0.5) // confidence to place in each trust claim
-const accuracy = new Big(0.5) // probability that each trust link is not mistakenly pointed to a malicious node
+const time = 500
+const confidence = new Big(0.1) // confidence to place in each trust claim
+const accuracy = new Big(0.1) // probability that each trust link is not mistakenly pointed to a malicious node
 // const beta = 0
 
 function connect (a, b, street) {
   if (a.name === b.name) {
     return
   }
-  if (b.isMalicious) {
-    const rand = new Big(Math.random())
-    const isMistake = rand.gt(accuracy)
-    if (isMistake) {
-      street.setTrust(String(a.name), String(b.name))
-    }
-  } else {
+  const rand = new Big(Math.random())
+  const isMistake = rand.gt(accuracy)
+  if (b.isMalicious === isMistake) {
     street.setTrust(String(a.name), String(b.name))
   }
 }
@@ -97,8 +93,8 @@ function run () {
     nodes.forEach(to => {
       const cred = street.cred(String(from.name), String(to.name), 0, clock.time())
       const correctness = to.isMalicious
-        ? cred.votes.times(cred.confidence).times(cred.value).times(NEGATIVE_ONE).round(5)
-        : cred.votes.times(cred.confidence).times(cred.value).round(5)
+        ? cred.value.times(NEGATIVE_ONE).round(5)
+        : cred.value.round(5)
       resultMatrix[from.name][to.name] = {
         from: from.name,
         to: to.name,
@@ -126,17 +122,11 @@ function run () {
   flattened.slice(0, half).forEach(({ value, confidence, isMalicious }) => {
     bayes.train({ value, confidence }, isMalicious)
   })
-  const bayesianIncorrectnesses = flattened.slice(half).map(({ value, confidence, isMalicious }) => {
-    const score = bayes.score({ value, confidence })
-    return isMalicious ? score.false - score.true : score.true - score.false
-  })
-  const bayesianCorrectQuantile = ss.quantileRank(bayesianIncorrectnesses, 0)
 
   const stats = {
     meanCorrectness,
     medianCorrectness,
-    correctQuantile,
-    bayesianCorrectQuantile
+    correctQuantile
   }
 
   console.log('done')

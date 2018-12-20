@@ -7,12 +7,21 @@ const TRUST_CLAIM = 'trust'
 const ZERO = new Big(0)
 const ONE = new Big(1)
 
+function addNode (nodes, node) {
+  if (!nodes.includes(node)) {
+    nodes.push(node)
+  }
+}
+
 class Street {
-  constructor ({ limit, defaultConfidence }) {
+  constructor ({ limit, defaultConfidence, iterations = 10, dp = 5 }) {
     this.limit = limit
     this.trustClaims = {}
     this.ratingClaims = {}
     this.defaultConfidence = defaultConfidence
+    this.nodes = []
+    this.iterations = iterations
+    this.dp = dp
   }
 
   setTrust (from, to, confidence) {
@@ -20,12 +29,16 @@ class Street {
     confidence = confidence || this.defaultConfidence
     trustClaims[to] = { confidence }
     this.trustClaims[from] = trustClaims
+    addNode(this.nodes, from)
+    addNode(this.nodes, to)
+    this.p2pTrust = null
   }
 
   removeTrust (from, to) {
     const trustClaims = Object.assign({}, this.trustClaims[from])
     delete trustClaims[to]
     this.trustClaims[from] = trustClaims
+    this.p2pTrust = null
   }
 
   addCred (from, to, time, isNegative = false) {
@@ -34,23 +47,34 @@ class Street {
     list.push({ time: new Big(time), isNegative })
     ratingClaims[to] = list
     this.ratingClaims[from] = ratingClaims
+    addNode(this.nodes, from)
+    addNode(this.nodes, to)
+    this.p2pTrust = null
   }
 
   removeCred (from, to, time) {
+    this.p2pTrust = null
     return this.addCred(from, to, time, true)
   }
 
   cred (from, to, startTime, currentTime) {
     startTime = new Big(startTime)
     currentTime = new Big(currentTime)
+    const claimsCache = {}
+    claimsCache[TRUST_CLAIM] = {}
+    claimsCache[CRED_CLAIM] = {}
 
     const getClaims = (from, claimType) => {
+      if (claimsCache[claimType][from]) {
+        return claimsCache[claimType][from]
+      }
       if (claimType === TRUST_CLAIM) {
         const trustClaims = this.trustClaims[from]
         if (!trustClaims) {
-          return []
+          claimsCache[claimType][from] = []
+          return claimsCache[claimType][from]
         }
-        return Object.keys(trustClaims).map(t => {
+        claimsCache[claimType][from] = Object.keys(trustClaims).map(t => {
           const claim = trustClaims[t]
           if (!claim) {
             return
@@ -58,12 +82,14 @@ class Street {
           const { confidence } = claim
           return { value: null, confidence, to: t }
         }).filter(c => c)
+        return claimsCache[claimType][from]
       } else if (claimType === CRED_CLAIM) {
         const ratingClaims = this.ratingClaims[from]
         if (!ratingClaims) {
-          return []
+          claimsCache[claimType][from] = []
+          return claimsCache[claimType][from]
         }
-        return Object.keys(ratingClaims).map(t => {
+        claimsCache[claimType][from] = Object.keys(ratingClaims).map(t => {
           const list = ratingClaims[t]
           if (!list) {
             return
@@ -73,7 +99,7 @@ class Street {
             return (time.gt(startTime)) && (time.lte(currentTime))
           })
           const votes = new Big(validatedList.length)
-          if (!votes) {
+          if (votes.toString() === '0') {
             return
           }
           if ((votes.div(timeDelta)).gt(this.limit)) {
@@ -84,10 +110,11 @@ class Street {
           }, ZERO)
           const value = {
             votes,
-            value: new Big(cumulativeRating)
+            value: cumulativeRating
           }
           return { value, confidence: 1, to: t }
         }).filter(c => c)
+        return claimsCache[claimType][from]
       } else {
         return []
       }
@@ -127,7 +154,16 @@ class Street {
       }
     }
 
-    const p2pTrust = new P2PTrust({ getClaims, getValue, metric: jacobsMetric })
+    const p2pTrust = this.p2pTrust || new P2PTrust({
+      getClaims,
+      getValue,
+      metric: jacobsMetric,
+      useCache: true,
+      iterations: this.iterations,
+      dp: this.dp,
+      nodes: this.nodes
+    })
+    this.p2pTrust = p2pTrust
     const { confidence, value: { votes, value } } = p2pTrust.claimConfidence(from, to, CRED_CLAIM)
     return { confidence, votes, value }
   }

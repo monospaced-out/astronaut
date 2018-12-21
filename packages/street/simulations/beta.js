@@ -3,8 +3,11 @@ const ss = require('simple-statistics')
 const Street = require('../src/street')
 
 const NEGATIVE_ONE = new Big(-1)
+const ZERO = new Big(0)
 const ONE = new Big(1)
 const TWO = new Big(2)
+
+const INCORRECT_WEIGHT = new Big(10) // how costly incorrect positive judgments are
 
 class Clock {
   constructor () {
@@ -26,6 +29,8 @@ const m = new Big(0.5) // probability of a node being malicious
 const time = 1
 const confidence = new Big(0.5) // confidence to place in each trust claim
 const accuracy = new Big(0.5) // probability that each trust link is not mistakenly pointed to a malicious node
+const iterations = 20
+const repetitions = 10
 // const beta = 0
 
 function connect (a, b, street) {
@@ -41,7 +46,7 @@ function connect (a, b, street) {
 
 function run () {
   const nodes = []
-  const street = new Street({ limit: 1, defaultConfidence: confidence })
+  const street = new Street({ limit: 1, defaultConfidence: confidence, iterations })
 
   console.log('creating nodes..')
 
@@ -95,6 +100,9 @@ function run () {
       const correctness = to.isMalicious
         ? cred.value.times(cred.confidence).times(NEGATIVE_ONE).round(5)
         : cred.value.times(cred.confidence).round(5)
+      const payoff = (to.isMalicious && cred.value.gt(ZERO))
+        ? correctness.times(INCORRECT_WEIGHT)
+        : correctness
       resultMatrix[from.name][to.name] = {
         from: from.name,
         to: to.name,
@@ -103,6 +111,7 @@ function run () {
         value: cred.value.toString().slice(0, 6),
         isMalicious: to.isMalicious,
         correctness: correctness.toString(),
+        payoff: payoff.toString(),
         incorrectness: correctness.times(NEGATIVE_ONE).toString()
       }
       flattened.push(resultMatrix[from.name][to.name])
@@ -111,60 +120,49 @@ function run () {
 
   console.log('analyzing...')
 
-  const getCorrectness = (arr) => {
-    return arr.map(({ correctness }) => {
-      return Number(correctness)
-    })
-  }
-
-  const getIncorrectness = (arr) => {
-    return arr.map(({ incorrectness }) => {
-      return Number(incorrectness)
-    })
-  }
-
   const good = flattened.filter(({ isMalicious }) => !isMalicious)
   const bad = flattened.filter(({ isMalicious }) => isMalicious)
   const goodCorrect = good.filter(({ correctness }) => correctness > 0)
   const goodIncorrect = good.filter(({ correctness }) => correctness < 0)
   const badCorrect = bad.filter(({ correctness }) => correctness > 0)
   const badIncorrect = bad.filter(({ correctness }) => correctness < 0)
-  const goodMean = ss.mean(getCorrectness(good))
-  const goodMedian = ss.median(getCorrectness(good))
-  const goodVariance = ss.variance(getCorrectness(good))
-  const goodQuantile = ss.quantile(getIncorrectness(good), 0.95) * -1
-  const goodQuantileRank = ss.quantileRank(getIncorrectness(good), 0)
-  const badMean = ss.mean(getCorrectness(bad))
-  const badMedian = ss.median(getCorrectness(bad))
-  const badVariance = ss.variance(getCorrectness(bad))
-  const badQuantile = ss.quantile(getCorrectness(bad), 0.95)
-  const badQuantileRank = ss.quantileRank(getCorrectness(bad), 0)
   const failureRate = (badIncorrect.length + goodIncorrect.length) / flattened.length
   const successRate = (badCorrect.length + goodCorrect.length) / flattened.length
+  const payoffs = flattened.map(({ payoff }) => Number(payoff))
+  const payoffMean = ss.mean(payoffs)
+  const payoffMedian = ss.median(payoffs)
+  const payoffVariance = ss.variance(payoffs)
+  const payoffSkewness = ss.sampleSkewness(payoffs)
+  const payoff95Percentile = ss.quantile(payoffs.map(p => p * -1), 0.95) * -1
+  const payoffsAbove0 = ss.quantileRank(payoffs.map(p => p * -1), 0.000001)
 
-  const half = Math.round(flattened.length / 2)
-  const bayes = new ss.BayesianClassifier()
-  flattened.slice(0, half).forEach(({ value, confidence, isMalicious }) => {
-    bayes.train({ value, confidence }, isMalicious)
-  })
-
-  const stats = {
-    goodMean,
-    goodMedian,
-    goodVariance,
-    goodQuantile,
-    goodQuantileRank,
-    badMean,
-    badMedian,
-    badVariance,
-    badQuantile,
-    badQuantileRank,
+  return {
     successRate,
-    failureRate
+    failureRate,
+    payoffMean,
+    payoffMedian,
+    payoffVariance,
+    payoffSkewness,
+    payoff95Percentile,
+    payoffsAbove0
   }
-
-  console.log('done')
-  console.log(stats)
 }
 
-run()
+const results = []
+for (var i = 1; i <= repetitions; i++) {
+  console.log(`repetition ${i}:`)
+  results.push(run())
+}
+const lists = results.reduce((acc, cur) => {
+  Object.keys(cur).forEach(key => {
+    const arr = acc[key] || []
+    arr.push(cur[key])
+    acc[key] = arr
+  })
+  return acc
+}, {})
+const averages = {}
+Object.keys(lists).forEach(stat => {
+  averages[stat] = ss.mean(lists[stat])
+})
+console.log('averages', averages)

@@ -23,7 +23,6 @@ class Clock {
 
 const n = new Big(80) // total number of nodes
 const k = new Big(4) // number of connections per node
-const m = new Big(0.5) // probability of a node being malicious
 const time = 1
 const confidence = new Big(0.9) // confidence to place in each trust claim
 const accuracy = new Big(0.9) // probability that each trust link is not mistakenly pointed to a malicious node
@@ -32,17 +31,6 @@ const repetitions = 10
 const beta = 1
 const riskAversion = new Big(2) // how costly incorrect positive judgments are
 
-function connect (a, b, street) {
-  if (a.name === b.name) {
-    return
-  }
-  const rand = new Big(Math.random())
-  const isMistake = rand.gt(accuracy)
-  if (b.isMalicious === isMistake) {
-    street.setTrust(String(a.name), String(b.name))
-  }
-}
-
 function run () {
   const nodes = []
   const street = new Street({ limit: 1, defaultConfidence: confidence, iterations })
@@ -50,14 +38,27 @@ function run () {
   console.log('creating nodes..')
 
   for (var i = 0; i < n; i++) {
-    const rand = new Big(Math.random())
-    const isMalicious = rand.lt(m)
-    nodes.push({ isMalicious, name: i })
+    nodes.push({ isMalicious: false, name: i })
   }
 
   console.log('connecting nodes...')
 
-  const randomlyRandom = (notRandom) => {
+  function connect (a, b, street) {
+    const rand = new Big(Math.random())
+    const isMistake = rand.gt(accuracy)
+    if (isMistake) {
+      const name = nodes.length
+      nodes.push({ isMalicious: true, name })
+      street.setTrust(String(a.name), String(name))
+      return
+    }
+    if (a.name === b.name) {
+      return
+    }
+    street.setTrust(String(a.name), String(b.name))
+  }
+
+  function randomlyRandom (notRandom) {
     const rand1 = new Big(Math.random())
     if (rand1.gt(beta)) {
       return notRandom

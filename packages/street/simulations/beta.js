@@ -7,8 +7,6 @@ const ZERO = new Big(0)
 const ONE = new Big(1)
 const TWO = new Big(2)
 
-const INCORRECT_WEIGHT = new Big(10) // how costly incorrect positive judgments are
-
 class Clock {
   constructor () {
     this.state = 0
@@ -23,15 +21,16 @@ class Clock {
   }
 }
 
-const n = new Big(50) // total number of nodes
+const n = new Big(80) // total number of nodes
 const k = new Big(4) // number of connections per node
 const m = new Big(0.5) // probability of a node being malicious
 const time = 1
-const confidence = new Big(0.5) // confidence to place in each trust claim
-const accuracy = new Big(0.5) // probability that each trust link is not mistakenly pointed to a malicious node
+const confidence = new Big(0.9) // confidence to place in each trust claim
+const accuracy = new Big(0.9) // probability that each trust link is not mistakenly pointed to a malicious node
 const iterations = 20
 const repetitions = 10
-// const beta = 0
+const beta = 1
+const riskAversion = new Big(2) // how costly incorrect positive judgments are
 
 function connect (a, b, street) {
   if (a.name === b.name) {
@@ -58,12 +57,22 @@ function run () {
 
   console.log('connecting nodes...')
 
+  const randomlyRandom = (notRandom) => {
+    const rand1 = new Big(Math.random())
+    if (rand1.gt(beta)) {
+      return notRandom
+    } else {
+      const rand2 = new Big(Math.random())
+      return new Big(Math.floor(Number(rand2.times(n).toString())))
+    }
+  }
+
   nodes.forEach((node, nodeIndex) => {
     nodeIndex = new Big(nodeIndex)
     const maxDistance = k.div(TWO)
     for (var d = ONE; d.lte(maxDistance); d = d.plus(ONE)) {
-      const above = nodeIndex.plus(d).mod(n)
-      const below = nodeIndex.minus(d).plus(n).mod(n)
+      const above = randomlyRandom(nodeIndex.plus(d).mod(n))
+      const below = randomlyRandom(nodeIndex.minus(d).plus(n).mod(n))
       connect(node, nodes[above.toString()], street)
       connect(node, nodes[below.toString()], street)
     }
@@ -101,7 +110,7 @@ function run () {
         ? cred.value.times(cred.confidence).times(NEGATIVE_ONE).round(5)
         : cred.value.times(cred.confidence).round(5)
       const payoff = (to.isMalicious && cred.value.gt(ZERO))
-        ? correctness.times(INCORRECT_WEIGHT)
+        ? correctness.times(riskAversion)
         : correctness
       resultMatrix[from.name][to.name] = {
         from: from.name,

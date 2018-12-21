@@ -21,14 +21,14 @@ class Clock {
   }
 }
 
-const n = new Big(80) // total number of nodes
+const n = new Big(200) // total number of nodes
 const k = new Big(4) // number of connections per node
 const time = 1
-const confidence = new Big(0.9) // confidence to place in each trust claim
+const confidence = new Big(0.7) // confidence to place in each trust claim
 const accuracy = new Big(0.9) // probability that each trust link is not mistakenly pointed to a malicious node
-const iterations = 20
-const repetitions = 10
-const beta = 1
+const iterations = 5
+const repetitions = 3
+const beta = 0.5
 const riskAversion = new Big(2) // how costly incorrect positive judgments are
 
 function run () {

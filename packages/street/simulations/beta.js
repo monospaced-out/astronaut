@@ -28,7 +28,7 @@ const confidence = new Big(0.7) // confidence to place in each trust claim
 const accuracy = new Big(0.9) // probability that each trust link is not mistakenly pointed to a malicious node
 const iterations = 5
 const repetitions = 3
-const beta = 0.5
+const beta = 0.5 // slider between randomness and order, inspired by beta model described in "Six Degrees"
 const riskAversion = new Big(2) // how costly incorrect positive judgments are
 
 function run () {
@@ -153,8 +153,8 @@ function run () {
     payoffMedian,
     payoffVariance,
     payoffSkewness,
-    payoff95Percentile,
-    payoffsAbove0
+    payoff95Percentile, // 95 percent of payoffs greater than this
+    payoffsAbove0 // percent of payoffs >= 0
   }
 }
 

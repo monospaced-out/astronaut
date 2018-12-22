@@ -30,6 +30,44 @@ const iterations = 5
 const repetitions = 3
 const beta = 0.5 // slider between randomness and order, inspired by beta model described in "Six Degrees"
 const riskAversion = new Big(2) // how costly incorrect positive judgments are
+const networkStructure = 'beta' // which network structure model to use
+
+function connect (nodes, a, b, street) {
+  const rand = new Big(Math.random())
+  const isMistake = rand.gt(accuracy)
+  if (isMistake) {
+    const name = nodes.length
+    nodes.push({ isMalicious: true, name })
+    street.setTrust(String(a.name), String(name))
+    return
+  }
+  if (a.name === b.name) {
+    return
+  }
+  street.setTrust(String(a.name), String(b.name))
+}
+
+function randomlyRandom (notRandom) {
+  const rand1 = new Big(Math.random())
+  if (rand1.gt(beta)) {
+    return notRandom
+  } else {
+    const rand2 = new Big(Math.random())
+    return new Big(Math.floor(Number(rand2.times(n).toString())))
+  }
+}
+
+const networkStructures = {
+  beta: (nodes, node, nodeIndex, street) => {
+    const maxDistance = k.div(TWO)
+    for (var d = ONE; d.lte(maxDistance); d = d.plus(ONE)) {
+      const above = randomlyRandom(nodeIndex.plus(d).mod(n))
+      const below = randomlyRandom(nodeIndex.minus(d).plus(n).mod(n))
+      connect(nodes, node, nodes[above.toString()], street)
+      connect(nodes, node, nodes[below.toString()], street)
+    }
+  }
+}
 
 function run () {
   const nodes = []
@@ -43,40 +81,9 @@ function run () {
 
   console.log('connecting nodes...')
 
-  function connect (a, b, street) {
-    const rand = new Big(Math.random())
-    const isMistake = rand.gt(accuracy)
-    if (isMistake) {
-      const name = nodes.length
-      nodes.push({ isMalicious: true, name })
-      street.setTrust(String(a.name), String(name))
-      return
-    }
-    if (a.name === b.name) {
-      return
-    }
-    street.setTrust(String(a.name), String(b.name))
-  }
-
-  function randomlyRandom (notRandom) {
-    const rand1 = new Big(Math.random())
-    if (rand1.gt(beta)) {
-      return notRandom
-    } else {
-      const rand2 = new Big(Math.random())
-      return new Big(Math.floor(Number(rand2.times(n).toString())))
-    }
-  }
-
   nodes.forEach((node, nodeIndex) => {
     nodeIndex = new Big(nodeIndex)
-    const maxDistance = k.div(TWO)
-    for (var d = ONE; d.lte(maxDistance); d = d.plus(ONE)) {
-      const above = randomlyRandom(nodeIndex.plus(d).mod(n))
-      const below = randomlyRandom(nodeIndex.minus(d).plus(n).mod(n))
-      connect(node, nodes[above.toString()], street)
-      connect(node, nodes[below.toString()], street)
-    }
+    networkStructures[networkStructure](nodes, node, nodeIndex, street)
   })
 
   console.log('interacting nodes...')

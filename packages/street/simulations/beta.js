@@ -21,16 +21,26 @@ class Clock {
   }
 }
 
-const n = new Big(200) // total number of nodes
-const k = new Big(4) // number of connections per node
+const n = new Big(100) // total number of nodes
+const k = new Big(2) // number of connections per node in beta model
 const time = 1
-const confidence = new Big(0.7) // confidence to place in each trust claim
+const confidence = new Big(0.5) // confidence to place in each trust claim
 const accuracy = new Big(0.9) // probability that each trust link is not mistakenly pointed to a malicious node
 const iterations = 5
 const repetitions = 3
 const beta = 0.5 // slider between randomness and order, inspired by beta model described in "Six Degrees"
-const riskAversion = new Big(2) // how costly incorrect positive judgments are
-const networkStructure = 'beta' // which network structure model to use
+const m = 7 // the `m` parameter from the Barabási–Albert model
+const riskAversion = new Big(1) // how costly incorrect positive judgments are
+const networkStructure = 'ba' // which network structure model to use
+const degrees = {}
+
+function getPayoff (cred, correctness, isMalicious) {
+  if (cred.value.gt(ZERO)) {
+    return isMalicious ? correctness.times(riskAversion) : correctness
+  } else {
+    return ZERO
+  }
+}
 
 function connect (nodes, a, b, street) {
   const rand = new Big(Math.random())
@@ -38,12 +48,15 @@ function connect (nodes, a, b, street) {
   if (isMistake) {
     const name = nodes.length
     nodes.push({ isMalicious: true, name })
+    degrees[String(a.name)]++
     street.setTrust(String(a.name), String(name))
     return
   }
   if (a.name === b.name) {
     return
   }
+  degrees[String(a.name)]++
+  degrees[String(b.name)]++
   street.setTrust(String(a.name), String(b.name))
 }
 
@@ -58,13 +71,35 @@ function randomlyRandom (notRandom) {
 }
 
 const networkStructures = {
-  beta: (nodes, node, nodeIndex, street) => {
-    const maxDistance = k.div(TWO)
-    for (var d = ONE; d.lte(maxDistance); d = d.plus(ONE)) {
-      const above = randomlyRandom(nodeIndex.plus(d).mod(n))
-      const below = randomlyRandom(nodeIndex.minus(d).plus(n).mod(n))
-      connect(nodes, node, nodes[above.toString()], street)
-      connect(nodes, node, nodes[below.toString()], street)
+  // Watts-Strogatz (aka "beta") model: https://en.wikipedia.org/wiki/Watts%E2%80%93Strogatz_model
+  beta: (nodes, street) => {
+    nodes.forEach((node, nodeIndex) => {
+      nodeIndex = new Big(nodeIndex)
+      const maxDistance = k.div(TWO)
+      for (var d = ONE; d.lte(maxDistance); d = d.plus(ONE)) {
+        const above = randomlyRandom(nodeIndex.plus(d).mod(n))
+        const below = randomlyRandom(nodeIndex.minus(d).plus(n).mod(n))
+        connect(nodes, node, nodes[above.toString()], street)
+        connect(nodes, node, nodes[below.toString()], street)
+      }
+    })
+  },
+  // Barabási–Albert model https://en.wikipedia.org/wiki/Barab%C3%A1si%E2%80%93Albert_model
+  ba: (nodes, street) => {
+    for (var i = 1; i < m + 1; i++) {
+      connect(nodes, nodes[i - 1], nodes[i], street)
+    }
+    for (var a = m + 1; a < n; a++) {
+      const probabilityUnits = Object.values(degrees).reduce((acc, degree, index) => {
+        for (var d = 0; d < degree; d++) {
+          acc.push(index)
+        }
+        return acc
+      }, [])
+      const nodesToConnect = ss.sample(probabilityUnits, m)
+      nodesToConnect.forEach(b => {
+        connect(nodes, nodes[a], nodes[b], street)
+      })
     }
   }
 }
@@ -73,28 +108,22 @@ function run () {
   const nodes = []
   const street = new Street({ limit: 1, defaultConfidence: confidence, iterations })
 
-  console.log('creating nodes..')
+  console.log('creating network structure...')
 
   for (var i = 0; i < n; i++) {
+    degrees[String(i)] = 0
     nodes.push({ isMalicious: false, name: i })
   }
-
-  console.log('connecting nodes...')
-
-  nodes.forEach((node, nodeIndex) => {
-    nodeIndex = new Big(nodeIndex)
-    networkStructures[networkStructure](nodes, node, nodeIndex, street)
-  })
+  networkStructures[networkStructure](nodes, street)
 
   console.log('interacting nodes...')
 
   const clock = new Clock()
   clock.tick()
   while (clock.time() < time + 1) {
-    nodes.forEach((node, nodeIndex) => {
-      nodeIndex = new Big(nodeIndex)
+    nodes.forEach((node) => {
       const rand = new Big(Math.random())
-      const randomIndex = Math.floor(Number(rand.times(n).toString()))
+      const randomIndex = Math.floor(Number(rand.times(nodes.length).toString()))
       const randomNode = nodes[randomIndex]
       if ((node.isMalicious !== randomNode.isMalicious)) {
         street.removeCred(String(node.name), String(randomNode.name), clock.time())
@@ -117,9 +146,7 @@ function run () {
       const correctness = to.isMalicious
         ? cred.value.times(cred.confidence).times(NEGATIVE_ONE).round(5)
         : cred.value.times(cred.confidence).round(5)
-      const payoff = (to.isMalicious && cred.value.gt(ZERO))
-        ? correctness.times(riskAversion)
-        : correctness
+      const payoff = getPayoff(cred, correctness, to.isMalicious)
       resultMatrix[from.name][to.name] = {
         from: from.name,
         to: to.name,
@@ -139,21 +166,35 @@ function run () {
 
   const good = flattened.filter(({ isMalicious }) => !isMalicious)
   const bad = flattened.filter(({ isMalicious }) => isMalicious)
+  const payoffs = flattened.map(({ payoff }) => Number(payoff))
+  const goodInteractions = good.length
+  const badInteractions = bad.length
   const goodCorrect = good.filter(({ correctness }) => correctness > 0)
   const goodIncorrect = good.filter(({ correctness }) => correctness < 0)
   const badCorrect = bad.filter(({ correctness }) => correctness > 0)
   const badIncorrect = bad.filter(({ correctness }) => correctness < 0)
+  const worstPayoff = ss.min(payoffs)
+  const positivePayoffMean = ss.mean(payoffs.filter(p => p > 0))
+  const negativePayoffMean = ss.mean(payoffs.filter(p => p < 0))
   const failureRate = (badIncorrect.length + goodIncorrect.length) / flattened.length
   const successRate = (badCorrect.length + goodCorrect.length) / flattened.length
-  const payoffs = flattened.map(({ payoff }) => Number(payoff))
+  const decisionRate = flattened.filter(({ correctness }) => Number(correctness) !== 0).length / flattened.length
   const payoffMean = ss.mean(payoffs)
   const payoffMedian = ss.median(payoffs)
   const payoffVariance = ss.variance(payoffs)
   const payoffSkewness = ss.sampleSkewness(payoffs)
   const payoff95Percentile = ss.quantile(payoffs.map(p => p * -1), 0.95) * -1
-  const payoffsAbove0 = ss.quantileRank(payoffs.map(p => p * -1), 0.000001)
+  const negativePayoff95Percentile = ss.quantile(payoffs.filter(p => p < 0).map(p => p * -1), 0.95) * -1
+  const positivePayoffQuantileRank = ss.quantileRank(payoffs.filter(p => p > 0).map(p => p * -1), negativePayoff95Percentile)
+  const nonNegativePayoffs = payoffs.filter(p => p >= 0).length / flattened.length
 
   return {
+    goodInteractions,
+    badInteractions,
+    worstPayoff,
+    positivePayoffMean,
+    negativePayoffMean,
+    decisionRate,
     successRate,
     failureRate,
     payoffMean,
@@ -161,7 +202,9 @@ function run () {
     payoffVariance,
     payoffSkewness,
     payoff95Percentile, // 95 percent of payoffs greater than this
-    payoffsAbove0 // percent of payoffs >= 0
+    negativePayoff95Percentile,
+    positivePayoffQuantileRank,
+    nonNegativePayoffs // percent of payoffs >= 0
   }
 }
 

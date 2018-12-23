@@ -3,39 +3,27 @@ const Big = require('big.js')
 const P2PTrust = require('../../p2p-trust/src/p2p-trust')
 const jacobsMetric = require('../../jacobs-metric/src/jacobs-metric')
 const { Graph } = require('@dagrejs/graphlib')
-const generateHtml = require('./confidence-html')
-const fs = require('fs')
+// const generateHtml = require('./confidence-html')
+// const fs = require('fs')
 
 const ZERO = new Big(0)
 
-const n = 20 // total number of nodes
-const confidence = 0.5 // confidence to place in each trust claim
-const accuracy = 0.9 // probability that each trust link is not mistakenly pointed to a malicious node
-const knowledgeRatio = 0.5 // percent of nodes that have the knowledge (vs those that are trying to infer it)
-const iterations = 10
-// const repetitions = 3
-const networkStructure = 'beta' // which network structure model to use
-
-const beta = 0 // slider between randomness and order, inspired by beta model described in "Six Degrees"
-const k = 4 // number of connections per node in beta model
-const m = 7 // the `m` parameter from the Barabási–Albert model
-
-const networkStructures = {
+const networkModels = {
   // Watts-Strogatz (aka "beta") model: https://en.wikipedia.org/wiki/Watts%E2%80%93Strogatz_model
-  beta: (nodes, setTrustClaim) => {
+  beta: (nodes, n, setTrustClaim, { beta, k }, accuracy, confidence) => {
     nodes.forEach((node, nodeIndex) => {
       const maxDistance = k / 2
       for (var d = 1; d <= maxDistance; d++) {
-        const above = randomlyRandom((nodeIndex + d) % n)
-        const below = randomlyRandom((nodeIndex - d + n) % n)
-        connect(setTrustClaim, nodes, node.name, nodes[above].name)
-        connect(setTrustClaim, nodes, node.name, nodes[below].name)
+        const above = randomlyRandom((nodeIndex + d) % n, n, beta)
+        const below = randomlyRandom((nodeIndex - d + n) % n, n, beta)
+        connect(setTrustClaim, nodes, node.name, nodes[above].name, accuracy, confidence)
+        connect(setTrustClaim, nodes, node.name, nodes[below].name, accuracy, confidence)
       }
     })
   }
 }
 
-function run () {
+function run ({ n, confidence, accuracy, knowledgeRatio, iterations, networkModel, modelOptions }) {
   const graph = new Graph({ multigraph: true })
   const getClaims = (from, claimType) => {
     const edges = graph.outEdges(from) || []
@@ -76,7 +64,7 @@ function run () {
   for (var i = 0; i < n; i++) {
     nodes.push({ isMalicious: false, name: String(i) })
   }
-  networkStructures[networkStructure](nodes, setTrustClaim)
+  networkModels[networkModel](nodes, n, setTrustClaim, modelOptions, accuracy, confidence)
 
   nodes.forEach(node => {
     const hasKnowledge = Math.random() < knowledgeRatio
@@ -110,17 +98,14 @@ function run () {
 
   const meanConfidence = ss.mean(results.map(({ combined }) => combined))
 
-  console.log('stats:')
-  console.log({
+  // const html = generateHtml(graph, nodes.filter(({ isMalicious }) => isMalicious).map(({ name }) => name))
+  // fs.writeFile('./simulations/confidence.html', html, () => {})
+  return {
     meanConfidence
-  })
-  const html = generateHtml(graph, nodes.filter(({ isMalicious }) => isMalicious).map(({ name }) => name))
-  fs.writeFile('./simulations/confidence.html', html, () => {})
+  }
 }
 
-run()
-
-function randomlyRandom (notRandom) {
+function randomlyRandom (notRandom, n, beta) {
   const rand1 = Math.random()
   if (rand1 > beta) {
     return notRandom
@@ -130,7 +115,7 @@ function randomlyRandom (notRandom) {
   }
 }
 
-function connect (setTrustClaim, nodes, a, b) {
+function connect (setTrustClaim, nodes, a, b, accuracy, confidence) {
   const isMistake = Math.random() > accuracy
   if (isMistake) {
     const maliciousNode = String(nodes.length)
@@ -140,3 +125,5 @@ function connect (setTrustClaim, nodes, a, b) {
     setTrustClaim(a, b, confidence)
   }
 }
+
+module.exports = run

@@ -10,14 +10,14 @@ const ZERO = new Big(0)
 
 const networkModels = {
   // Watts-Strogatz (aka "beta") model: https://en.wikipedia.org/wiki/Watts%E2%80%93Strogatz_model
-  beta: (nodes, n, setTrustClaim, { beta, k }, accuracy, confidence) => {
+  beta: ({ nodes, n, setTrustClaim, modelOptions: { beta, k }, accuracy, confidence }) => {
     nodes.forEach((node, nodeIndex) => {
       const maxDistance = k / 2
       for (var d = 1; d <= maxDistance; d++) {
-        const above = randomlyRandom((nodeIndex + d) % n, n, beta)
-        const below = randomlyRandom((nodeIndex - d + n) % n, n, beta)
-        connect(setTrustClaim, nodes, node.name, nodes[above].name, accuracy, confidence)
-        connect(setTrustClaim, nodes, node.name, nodes[below].name, accuracy, confidence)
+        const above = randomlyRandom({ notRandom: (nodeIndex + d) % n, n, beta })
+        const below = randomlyRandom({ notRandom: (nodeIndex - d + n) % n, n, beta })
+        connect({ setTrustClaim, nodes, a: node.name, b: nodes[above].name, accuracy, confidence })
+        connect({ setTrustClaim, nodes, a: node.name, b: nodes[below].name, accuracy, confidence })
       }
     })
   }
@@ -64,7 +64,7 @@ function run ({ n, confidence, accuracy, knowledgeRatio, iterations, networkMode
   for (var i = 0; i < n; i++) {
     nodes.push({ isMalicious: false, name: String(i) })
   }
-  networkModels[networkModel](nodes, n, setTrustClaim, modelOptions, accuracy, confidence)
+  networkModels[networkModel]({ nodes, n, setTrustClaim, modelOptions, accuracy, confidence })
 
   nodes.forEach(node => {
     const hasKnowledge = Math.random() < knowledgeRatio
@@ -105,7 +105,7 @@ function run ({ n, confidence, accuracy, knowledgeRatio, iterations, networkMode
   }
 }
 
-function randomlyRandom (notRandom, n, beta) {
+function randomlyRandom ({ notRandom, n, beta }) {
   const rand1 = Math.random()
   if (rand1 > beta) {
     return notRandom
@@ -115,7 +115,7 @@ function randomlyRandom (notRandom, n, beta) {
   }
 }
 
-function connect (setTrustClaim, nodes, a, b, accuracy, confidence) {
+function connect ({ setTrustClaim, nodes, a, b, accuracy, confidence }) {
   const isMistake = Math.random() > accuracy
   if (isMistake) {
     const maliciousNode = String(nodes.length)

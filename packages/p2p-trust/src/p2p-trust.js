@@ -13,7 +13,7 @@ class P2PTrust {
   }
 
   peerConfidence (from, to) {
-    const { confidence } = this.metric(this.getClaims, this.getValue, from, to, TRUST_EDGE)
+    const { confidence } = this.metric(this.getClaims, this.getValue, from, to, TRUST_EDGE, this.cache, this.config)
     return confidence
   }
 

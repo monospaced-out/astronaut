@@ -4,10 +4,13 @@ const TRUST_CLAIM = 'trust'
 const ONE = new Big(1)
 
 function helper (getClaims, getValue, current, target, claimType, currentValues, dp) {
+  if (current === target) {
+    return { confidence: ONE, value: ONE }
+  }
   const trustClaims = getClaims(current, TRUST_CLAIM)
   const fromPeers = trustClaims.map(({ to, confidence }) => {
     const fromPeer = currentValues[to][target]
-    if (!fromPeer) {
+    if (!fromPeer || to === target) {
       return
     }
     return {
@@ -37,7 +40,7 @@ function jacobs (getClaims, getValue, source, target, claimType, cache, config) 
   if (cache && cache['currentValues']) {
     return cache['currentValues'][source][target]
   }
-  const { iterations, nodes, dp } = config
+  const { iterations, nodes, dp = 5 } = config
   const currentValues = {}
   nodes.forEach(a => {
     currentValues[a] = {}

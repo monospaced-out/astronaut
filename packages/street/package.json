@@ -25,6 +25,7 @@
     "big.js": "^5.2.2"
   },
   "devDependencies": {
+    "@dagrejs/graphlib": "^2.1.4",
     "simple-statistics": "^6.1.1"
   }
 }

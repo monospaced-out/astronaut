@@ -20,6 +20,24 @@ const networkModels = {
         connect({ setTrustClaim, nodes, a: node.name, b: nodes[below].name, accuracy, confidence })
       }
     })
+  },
+  // Barabási–Albert model https://en.wikipedia.org/wiki/Barab%C3%A1si%E2%80%93Albert_model
+  ba: ({ graph, nodes, n, setTrustClaim, modelOptions: { m }, accuracy, confidence }) => {
+    for (var i = 1; i < m + 1; i++) {
+      connect({ setTrustClaim, nodes, a: nodes[i - 1].name, b: nodes[i].name, accuracy, confidence })
+    }
+    for (var a = m + 1; a < n; a++) {
+      const edges = graph.edges()
+      const trustEdges = edges.filter(e => e.name === 'trust')
+      const probabilityUnits = trustEdges.reduce((acc, { v }) => {
+        acc.push(v)
+        return acc
+      }, [])
+      const nodesToConnect = ss.sample(probabilityUnits, m)
+      nodesToConnect.forEach(b => {
+        connect({ setTrustClaim, nodes, a: nodes[a].name, b: nodes[b].name, accuracy, confidence })
+      })
+    }
   }
 }
 
@@ -64,7 +82,7 @@ function run ({ n, confidence, accuracy, knowledgeRatio, iterations, networkMode
   for (var i = 0; i < n; i++) {
     nodes.push({ isMalicious: false, name: String(i) })
   }
-  networkModels[networkModel]({ nodes, n, setTrustClaim, modelOptions, accuracy, confidence })
+  networkModels[networkModel]({ graph, nodes, n, setTrustClaim, modelOptions, accuracy, confidence })
 
   nodes.forEach(node => {
     const hasKnowledge = Math.random() < knowledgeRatio

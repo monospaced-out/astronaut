@@ -41,7 +41,7 @@ const networkModels = {
   }
 }
 
-function run ({ n, confidence, accuracy, knowledgeRatio, iterations, networkModel, modelOptions }) {
+function run ({ n, confidence, accuracy, knowledgeRatio, iterations, networkModel, modelOptions, updateProgress }) {
   const graph = new Graph({ multigraph: true })
   const getClaims = (from, claimType) => {
     const edges = graph.outEdges(from) || []
@@ -77,7 +77,7 @@ function run ({ n, confidence, accuracy, knowledgeRatio, iterations, networkMode
   }
   const nodes = []
 
-  console.log('creating network structure...')
+  updateProgress('creating network structure...')
 
   for (var i = 0; i < n; i++) {
     nodes.push({ isMalicious: false, name: String(i) })
@@ -93,7 +93,7 @@ function run ({ n, confidence, accuracy, knowledgeRatio, iterations, networkMode
     }
   })
 
-  console.log('gathering results...')
+  updateProgress('gathering results...')
 
   const p2pTrust = new P2PTrust({
     getClaims,
@@ -108,18 +108,18 @@ function run ({ n, confidence, accuracy, knowledgeRatio, iterations, networkMode
     const result = p2pTrust.claimConfidence(from.name, '0', 'something')
     const resultConfidence = Number(result.confidence.toString())
     const resultValue = Number(result.value.toString())
-    const combined = resultValue * resultConfidence
-    return { from, confidence: resultConfidence, value: resultValue, combined }
+    const perceivedValue = resultValue * resultConfidence
+    return { from, confidence: resultConfidence, value: resultValue, perceivedValue }
   })
 
-  console.log('analyzing...')
+  updateProgress('analyzing...')
 
-  const meanConfidence = ss.mean(results.map(({ combined }) => combined))
+  const perceivedValueMean = ss.mean(results.map(({ perceivedValue }) => perceivedValue))
 
   // const html = generateHtml(graph, nodes.filter(({ isMalicious }) => isMalicious).map(({ name }) => name))
   // fs.writeFile('./simulations/confidence.html', html, () => {})
   return {
-    meanConfidence
+    perceivedValueMean
   }
 }
 

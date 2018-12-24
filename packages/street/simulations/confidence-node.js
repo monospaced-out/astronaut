@@ -24,7 +24,7 @@ let i = 0
 let currentResults
 while (!isStable) {
   console.log(`running simulation ${i}...`)
-  const result = simulation({
+  const { stats } = simulation({
     n,
     confidence,
     accuracy,
@@ -36,7 +36,7 @@ while (!isStable) {
       // console.log(update)
     }
   })
-  results.push(result)
+  results.push(stats)
   const lists = results.reduce((acc, cur) => {
     Object.keys(cur).forEach(key => {
       const arr = acc[key] || []

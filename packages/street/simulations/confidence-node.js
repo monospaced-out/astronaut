@@ -1,21 +1,23 @@
 const ss = require('simple-statistics')
 const simulation = require('./confidence')
-
-const n = 20 // total number of nodes
-const confidence = 0.5 // confidence to place in each trust claim
-const accuracy = 0 // probability that each trust link is not mistakenly pointed to a malicious node
-const knowledgeRatio = 0.5 // percent of nodes that have the knowledge (vs those that are trying to infer it)
-const iterations = 5 // number of iterations for jacobs metric
-const networkModel = 'beta' // which network structure model to use
-
-const beta = 0 // slider between randomness and order, inspired by beta model described in "Six Degrees"
-const k = 4 // number of connections per node in beta model
-const m = 3 // the `m` parameter from the Barabási–Albert model
+const {
+  n, // total number of nodes
+  confidence, // confidence to place in each trust claim
+  accuracy, // probability that each trust link is not mistakenly pointed to a malicious node
+  knowledgeRatio, // percent of nodes that have the knowledge (vs those that are trying to infer it)
+  iterations, // number of iterations for jacobs metric
+  networkModel, // which network structure model to use
+  modelOptions: {
+    beta, // slider between randomness and order, inspired by beta model described in "Six Degrees"
+    k, // number of connections per node in beta model
+    m // the `m` parameter from the Barabási–Albert model
+  }
+} = require('./config.json')
 
 const stabilizationTime = 50 // number of simulations to run to determine that the mean has stabilized
 
 const desiredPrecision = {
-  perceivedValueMean: 0.005
+  perceivedValueMean: 0.01
 }
 
 const results = []

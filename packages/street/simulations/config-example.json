@@ -1,0 +1,13 @@
+{
+  "n": 20,
+  "confidence": 0.9,
+  "accuracy": 0.9,
+  "knowledgeRatio": 0.5,
+  "iterations": 10,
+  "networkModel": "beta",
+  "modelOptions": {
+    "beta": 0,
+    "k": 4,
+    "m": 3
+  }
+}

@@ -101,8 +101,8 @@ function run ({ n, confidence, accuracy, knowledgeRatio, iterations, networkMode
     iterations,
     nodes: nodes.map(n => n.name)
   })
-  const goodNodes = nodes.filter(node => !node.isMalicious)
-  const results = goodNodes.map(from => {
+  const goodAgnosticNodes = nodes.filter(node => !node.isMalicious && !node.hasKnowledge)
+  const results = goodAgnosticNodes.map(from => {
     const result = p2pTrust.claimConfidence(from.name, '0', 'something')
     const resultConfidence = Number(result.confidence.toString())
     const resultValue = Number(result.value.toString())

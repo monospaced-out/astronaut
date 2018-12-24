@@ -115,6 +115,7 @@ function run ({ n, confidence, accuracy, knowledgeRatio, iterations, networkMode
   const perceivedValueMean = ss.mean(results.map(({ perceivedValue }) => perceivedValue))
 
   return {
+    results,
     stats: {
       perceivedValueMean
     },

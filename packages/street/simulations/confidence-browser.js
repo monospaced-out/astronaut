@@ -13,7 +13,7 @@ const beta = 0 // slider between randomness and order, inspired by beta model de
 const k = 4 // number of connections per node in beta model
 const m = 3 // the `m` parameter from the Barabási–Albert model
 
-const { stats, graph, nodes } = simulation({
+const { stats, graph, nodes, results } = simulation({
   n,
   confidence,
   accuracy,
@@ -29,4 +29,5 @@ const { stats, graph, nodes } = simulation({
 const html = generateHtml(graph, nodes.filter(({ isMalicious }) => isMalicious).map(({ name }) => name))
 fs.writeFile('./simulations/confidence.html', html, () => {})
 
+console.log('results:', results)
 console.log('stats:', stats)

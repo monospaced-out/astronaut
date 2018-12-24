@@ -3,8 +3,6 @@ const Big = require('big.js')
 const P2PTrust = require('../../p2p-trust/src/p2p-trust')
 const jacobsMetric = require('../../jacobs-metric/src/jacobs-metric')
 const { Graph } = require('@dagrejs/graphlib')
-// const generateHtml = require('./confidence-html')
-// const fs = require('fs')
 
 const ZERO = new Big(0)
 
@@ -116,10 +114,12 @@ function run ({ n, confidence, accuracy, knowledgeRatio, iterations, networkMode
 
   const perceivedValueMean = ss.mean(results.map(({ perceivedValue }) => perceivedValue))
 
-  // const html = generateHtml(graph, nodes.filter(({ isMalicious }) => isMalicious).map(({ name }) => name))
-  // fs.writeFile('./simulations/confidence.html', html, () => {})
   return {
-    perceivedValueMean
+    stats: {
+      perceivedValueMean
+    },
+    graph,
+    nodes
   }
 }
 

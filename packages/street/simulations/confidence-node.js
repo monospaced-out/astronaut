@@ -6,7 +6,7 @@ const confidence = 0.5 // confidence to place in each trust claim
 const accuracy = 0 // probability that each trust link is not mistakenly pointed to a malicious node
 const knowledgeRatio = 0.5 // percent of nodes that have the knowledge (vs those that are trying to infer it)
 const iterations = 5 // number of iterations for jacobs metric
-const networkModel = 'ba' // which network structure model to use
+const networkModel = 'beta' // which network structure model to use
 
 const beta = 0 // slider between randomness and order, inspired by beta model described in "Six Degrees"
 const k = 4 // number of connections per node in beta model

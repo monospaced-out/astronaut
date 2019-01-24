@@ -42,7 +42,7 @@ const networkModels = {
   }
 }
 
-function run ({ n, confidence, accuracy, knowledgeRatio, iterations, networkModel, modelOptions, updateProgress, metric }) {
+function run ({ n, confidence, accuracy, knowledgeRatio, iterations, networkModel, modelOptions, updateProgress, metric, riskFactor }) {
   const graph = new Graph({ multigraph: true })
   const getClaims = (from, claimType) => {
     const edges = graph.outEdges(from) || []
@@ -89,7 +89,7 @@ function run ({ n, confidence, accuracy, knowledgeRatio, iterations, networkMode
     const hasKnowledge = Math.random() < knowledgeRatio
     node.hasKnowledge = hasKnowledge
     if (hasKnowledge) {
-      const value = node.isMalicious ? -1 : 1
+      const value = node.isMalicious ? (-1 * riskFactor) : 1
       setClaim(node.name, value)
     }
   })

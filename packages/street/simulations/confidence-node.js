@@ -12,7 +12,8 @@ const {
     k, // number of connections per node in beta model
     m // the `m` parameter from the Barabási–Albert model
   },
-  metric
+  metric,
+  riskFactor
 } = require('./config.json')
 
 const stabilizationTime = 50 // number of simulations to run to determine that the mean has stabilized
@@ -38,7 +39,8 @@ while (!isStable) {
     updateProgress: (update) => {
       // console.log(update)
     },
-    metric
+    metric,
+    riskFactor
   })
   results.push(stats)
   const lists = results.reduce((acc, cur) => {

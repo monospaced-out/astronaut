@@ -3,6 +3,9 @@ const Big = require('big.js')
 const P2PTrust = require('../../p2p-trust/src/p2p-trust')
 const jacobsMetric = require('../../jacobs-metric/src/jacobs-metric')
 const { Graph } = require('@dagrejs/graphlib')
+const metrics = {
+  jacobs: jacobsMetric
+}
 
 const ZERO = new Big(0)
 
@@ -39,7 +42,7 @@ const networkModels = {
   }
 }
 
-function run ({ n, confidence, accuracy, knowledgeRatio, iterations, networkModel, modelOptions, updateProgress }) {
+function run ({ n, confidence, accuracy, knowledgeRatio, iterations, networkModel, modelOptions, updateProgress, metric }) {
   const graph = new Graph({ multigraph: true })
   const getClaims = (from, claimType) => {
     const edges = graph.outEdges(from) || []
@@ -96,7 +99,7 @@ function run ({ n, confidence, accuracy, knowledgeRatio, iterations, networkMode
   const p2pTrust = new P2PTrust({
     getClaims,
     getValue,
-    metric: jacobsMetric,
+    metric: metrics[metric],
     useCache: true,
     iterations,
     nodes: nodes.map(n => n.name)

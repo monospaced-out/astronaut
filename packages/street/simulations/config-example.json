@@ -1,13 +1,14 @@
 {
   "n": 20,
-  "confidence": 0.9,
-  "accuracy": 0.9,
+  "confidence": 0.95,
+  "accuracy": 0.95,
   "knowledgeRatio": 0.5,
   "iterations": 10,
-  "networkModel": "beta",
+  "networkModel": "ba",
+  "metric": "jacobs",
   "modelOptions": {
     "beta": 0,
-    "k": 4,
-    "m": 3
+    "k": 2,
+    "m": 2
   }
 }

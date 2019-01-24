@@ -11,7 +11,8 @@ const {
     beta, // slider between randomness and order, inspired by beta model described in "Six Degrees"
     k, // number of connections per node in beta model
     m // the `m` parameter from the Barabási–Albert model
-  }
+  },
+  metric
 } = require('./config.json')
 
 const stabilizationTime = 50 // number of simulations to run to determine that the mean has stabilized
@@ -36,7 +37,8 @@ while (!isStable) {
     modelOptions: { beta, k, m },
     updateProgress: (update) => {
       // console.log(update)
-    }
+    },
+    metric
   })
   results.push(stats)
   const lists = results.reduce((acc, cur) => {
